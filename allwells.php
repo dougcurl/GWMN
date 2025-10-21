@@ -1,9 +1,7 @@
 <?php
-// Configuration
-$client_id = 'KGSStream1'; // client ID
-$client_secret = '93ccab41ad394e668295313b6e8e1ef1'; // client secret
-$base_url = 'https://www.hydrovu.com/public-api/v1';
-$token_url = 'https://hydrovu.com/public-api/oauth/token';
+
+// Load API credentials (not in Git)
+require_once __DIR__ . '/credentials.php';
 
 // API Endpoints
 $friendlynames_endpoint = $base_url . '/sispec/friendlynames';

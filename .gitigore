@@ -1,0 +1,31 @@
+# API Credentials - NEVER COMMIT THESE
+credentials.php
+
+# Cache directory - contains temporary data
+cache/
+cache/*.cache
+
+# Backup files
+*_backup/
+*.tar.gz
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+error_log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
