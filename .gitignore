@@ -11,6 +11,7 @@ hp_old/
 # Backup files
 *_backup/
 **/archive/
+archive/
 *.tar.gz
 *.zip
 
@@ -34,5 +35,8 @@ tmp/
 temp/
 *.tmp
 
-#Git Ignore for GWMN water services project
-.gitignore
+# Environment files
+.env
+.env.local
+.env.*.local
+"@ | Out-File -FilePath .gitignore -Encoding utf8 -NoNewline
