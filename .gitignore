@@ -1,12 +1,16 @@
 # API Credentials - NEVER COMMIT THESE
 credentials.php
 
-# Cache directory
+# Cache directories - anywhere in the project
+**/cache/
+**/*.cache
 cache/
-cache/*.cache
+*.cache
+hp_old/
 
 # Backup files
 *_backup/
+**/archive/
 *.tar.gz
 *.zip
 
@@ -29,3 +33,6 @@ error_log
 tmp/
 temp/
 *.tmp
+
+#Git Ignore for GWMN water services project
+.gitignore
