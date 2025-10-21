@@ -1,7 +1,7 @@
 # API Credentials - NEVER COMMIT THESE
 credentials.php
 
-# Cache directory - contains temporary data
+# Cache directory
 cache/
 cache/*.cache
 
