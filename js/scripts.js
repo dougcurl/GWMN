@@ -590,29 +590,79 @@ function formatDateTime_t(timestamp) {
 
 // Date range controls
 function updateWeekRange(days) {
-    const date = new Date();
+    const weekStartInput = document.getElementById('week_start');
+    const currentStart = weekStartInput.value;
+    let date;
+    
+    if (currentStart) {
+        // If there's a current value, use it as the base
+        date = new Date(currentStart + 'T00:00:00');
+    } else {
+        // Otherwise, use 7 days ago as the base
+        date = new Date();
+        date.setDate(date.getDate() - 7);
+    }
+    
+    // Add the days offset
     date.setDate(date.getDate() + days);
-    document.getElementById('week_start').value = date.toISOString().split('T')[0];
-    document.getElementById('week_start').form.submit();
+    
+    // Format as YYYY-MM-DD
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    
+    weekStartInput.value = formattedDate;
+    
+    // Submit the form
+    document.getElementById('weekForm').submit();
 }
 
 function updateHourRange(hours) {
-    const date = new Date();
+    const hourStartInput = document.getElementById('hour_start');
+    const currentStart = hourStartInput.value;
+    let date;
+    
+    if (currentStart) {
+        // If there's a current value, use it as the base
+        date = new Date(currentStart);
+    } else {
+        // Otherwise, use 24 hours ago as the base
+        date = new Date();
+        date.setHours(date.getHours() - 24);
+    }
+    
+    // Add the hours offset
     date.setHours(date.getHours() + hours);
-    document.getElementById('hour_start').value = date.toISOString().split('T')[0] + 'T' + 
-                                               date.getHours().toString().padStart(2, '0') + ':' +
-                                               date.getMinutes().toString().padStart(2, '0');
-    document.getElementById('hour_start').form.submit();
+    
+    // Format as YYYY-MM-DDTHH:MM
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}T${hour}:${minute}`;
+    
+    hourStartInput.value = formattedDate;
+    console.log("Updated hour_start to:", formattedDate);
+    
+    // Submit the form
+    window.location.hash = '#hourly-data-header';
+    document.getElementById('hourForm').submit();
 }
 
 function resetWeekRange() {
-    document.getElementById('week_start').value = '';
-    document.getElementById('week_start').form.submit();
+    // Remove the week_start parameter and reload
+    const url = new URL(window.location.href);
+    url.searchParams.delete('week_start');
+    window.location.href = url.toString();
 }
 
 function resetHourRange() {
-    document.getElementById('hour_start').value = '';
-    document.getElementById('hour_start').form.submit();
+    // Remove the hour_start parameter and reload
+    const url = new URL(window.location.href);
+    url.searchParams.delete('hour_start');
+    window.location.href = url.toString();
 }
 
 

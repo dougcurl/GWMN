@@ -13,7 +13,7 @@ $all_wells = getAllWells();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KGS Groundwater Monitoring Network - Well Selection</title>
+    <title>KGS Groundwater Monitoring Network - Real-Time Data Wells</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
     <style>
@@ -26,7 +26,7 @@ $all_wells = getAllWells();
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #06196eff 0%, #a4cbe2ff 100%);
             color: white;
             padding: 60px 0;
             margin-bottom: 40px;
@@ -44,7 +44,7 @@ $all_wells = getAllWells();
                          style="max-height: 100px; filter: brightness(0) invert(1);">
                 </div>
                 <div class="col-md-10">
-                    <h1 class="display-4 mb-2">Groundwater Monitoring Network</h1>
+                    <h1 class="display-4 mb-2">Kentucky Groundwater Monitoring Network</h1>
                     <p class="lead mb-0">
                         Real-time groundwater level and temperature monitoring across Kentucky
                     </p>
@@ -63,6 +63,18 @@ $all_wells = getAllWells();
             </div>
         </div>
 
+        <div class="row mb-4">
+            <div style="height: 400px; position: relative;">
+                <iframe 
+                    src="https://kygs.maps.arcgis.com/apps/instant/basic/index.html?appid=950d226696a14106938919d028b1944a&level=7&center=-85.4576,37.8393"
+                    style="width: 100%; height: 100%; border: none;"
+                    title="KGON Well Locations"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+
+
         <div class="row">
             <?php foreach ($all_wells as $well_id => $well_config): ?>
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -70,7 +82,8 @@ $all_wells = getAllWells();
                         <div class="card well-card h-100 shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title text-primary mb-3">
-                                    <?php echo htmlspecialchars($well_config['full_name']); ?>
+                                    <?php echo htmlspecialchars($well_config['full_name']); ?><br>
+                                    (<?php echo htmlspecialchars($well_config['well_numeric_id']); ?>)
                                 </h5>
                                 
                                 <p class="card-text text-muted">
@@ -84,14 +97,19 @@ $all_wells = getAllWells();
                                 
                                 <div class="mt-3 pt-3 border-top">
                                     <small class="text-muted">
-                                        <strong>Common Name:</strong> <?php echo htmlspecialchars($well_config['common_name']); ?>
+                                        <strong>Name:</strong> <?php echo htmlspecialchars($well_config['full_name']); ?>
+                                        <br>
+                                        <strong>Depth:</strong> <?php echo htmlspecialchars($well_config['water_well_depth']); ?> ft
+                                        <br>
+                                        <strong>Elevation:</strong> <?php echo htmlspecialchars($well_config['water_well_elevation']); ?> ft
+                                        <br>
+                                        <strong>Aquifer:</strong> <?php echo htmlspecialchars($well_config['aquifer_name']); ?>
                                     </small>
                                 </div>
                             </div>
                             <div class="card-footer bg-transparent border-top-0">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="text-primary">View Data →</span>
-                                    <small class="text-muted">Location ID: <?php echo substr($well_config['location_id'], 0, 8); ?>...</small>
                                 </div>
                             </div>
                         </div>

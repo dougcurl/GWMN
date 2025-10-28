@@ -97,9 +97,9 @@ if ($debug_mode) {
                 <div class="col-md-6 col-sm-9">
                     <h1 class="mb-1 fs-3">
                         <?php if ($page_title): ?>
-                            <?php echo $page_title ?? 'Hickman 1 Deep Water Well (KGON-5)'; ?>
+                            <?php echo $page_title ?? 'Kentucky Horse Park Water Well (KGON-1)'; ?>
                         <?php else: ?>
-                            Hickman 1 Deep Water Well (KGON-5)
+                            Kentucky Horse Park Water Well (KGON-1)
                         <?php endif; ?>
                     </h1>
                     <h2 class="fs-5 text-muted"><a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php">KGS Groundwater Monitoring Network</a></h2>

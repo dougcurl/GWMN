@@ -10,6 +10,7 @@
  * - full_name: Full title for the page
  * - water_level_baseline: Elevation baseline for water level calculations
  * - water_level_warning: Ground surface elevation threshold
+ * - reading_interval: How often data is recorded (in minutes) - used for cache consistency
  */
 
 $wells_config = [
@@ -17,10 +18,20 @@ $wells_config = [
         'well_id' => 'hp',
         'location_id' => '5515870852612096',
         'common_name' => 'Horse Park',
+        'well_numeric_id' => 'KGON-1',
         'full_name' => 'Kentucky Horse Park Water Well',
-        'water_level_baseline' => 804.25,
-        'water_level_warning' => 838,
-        'description' => 'Horse Park groundwater monitoring well',
+        'property_owner' => 'Kentucky Horse Park', //name of property owner
+        'water_well_elevation' => 838, //ground surface elevation at well location
+        'water_well_depth' => 80, //depth of the well
+        'depth_method' => 'Baseline_Elev',  //method used to measure depth to water from raw data
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
+        'casing_height' => 1.25, //height of well casing above ground surface
+        //'transducer_height' => -33.75, //height of measuring point above ground surface - may be negative if below ground surface
+        'water_level_baseline' => 804.25, //NAVD88 elevation of the measuring point
+        'water_level_warning' => 838, //top of the well head casing - elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => 'Lexington Limestone',
+        'description' => 'Horse Park groundwater monitoring well (KGON 1) located at the Kentucky Horse Park in Lexington, KY. Depth of well is 80 ft.',
         'param_names' => [
             'depth' => 'Groundwater Level Elevation',
             'temperature' => 'Temperature'
@@ -34,10 +45,20 @@ $wells_config = [
         'well_id' => 'hickman1',
         'location_id' => '5898229225619456', // Replace with actual location ID
         'common_name' => 'Hickman1',
-        'full_name' => 'Hickman 1 Water Well',
-        'water_level_baseline' => 0, // Replace with actual baseline
-        'water_level_warning' => 0, // Replace with actual warning level
-        'description' => 'Hickman 1 groundwater monitoring well',
+        'well_numeric_id' => 'KGON-5',
+        'full_name' => 'Hickman 1 Deep Water Well',
+        'property_owner' => 'Naranjo Family',
+        'depth_method' => 'TD_Height', //method used to measure depth to water from raw data 
+        // TD_Height Well Elevation: Water Well Surface Elevation -  Transducer Height - Raw Well Depth = Water Level Elevation
+        'water_well_elevation' => 421, //ground surface elevation at well location
+        'water_well_depth' => 380, //depth of the well
+        'casing_height' => 1.5, //height of well casing above ground surface
+        'transducer_height' => 1.17, //height of measuring point above ground surface
+        //'water_level_baseline' => 421, // NAVD88 elevation of the measuring point
+        'water_level_warning' =>  422.5, // elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => 'Middle Claiborne Aquifer',
+        'description' => 'Hickman 1 deep groundwater monitoring well (KGON 5) located in Hickman County, KY. Depth of well is 380 ft.',
         'param_names' => [
             'depth' => 'Groundwater Level Elevation',
             'temperature' => 'Temperature'
@@ -47,7 +68,6 @@ $wells_config = [
             'temperature' => '°F'
         ]
     ]
-    // Add more wells here as needed
 ];
 
 /**

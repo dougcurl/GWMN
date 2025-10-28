@@ -6,6 +6,7 @@ credentials.php
 **/*.cache
 cache/
 *.cache
+hp_no/
 hp_old/
 
 # Backup files
