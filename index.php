@@ -1,7 +1,7 @@
 <?php
 /**
  * Root Index Page - Lists all available wells
- * Place this in your root directory
+ * Updated to use consolidated well.php page
  */
 
 require_once 'wells_config.php';
@@ -66,7 +66,7 @@ $all_wells = getAllWells();
         <div class="row mb-4">
             <div style="height: 400px; position: relative;">
                 <iframe 
-                    src="https://kygs.maps.arcgis.com/apps/instant/basic/index.html?appid=950d226696a14106938919d028b1944a&level=7&center=-85.4576,37.8393"
+                    src="https://kygs.maps.arcgis.com/apps/instant/basic/index.html?appid=a914432c6d6940268c9080859733a235&level=7&center=-85.4576,37.8393"
                     style="width: 100%; height: 100%; border: none;"
                     title="KGON Well Locations"
                     allowfullscreen>
@@ -74,11 +74,12 @@ $all_wells = getAllWells();
             </div>
         </div>
 
-
         <div class="row">
             <?php foreach ($all_wells as $well_id => $well_config): ?>
                 <div class="col-md-6 col-lg-4 mb-4">
-                    <a href="<?php echo $well_id; ?>/" class="text-decoration-none">
+                    <!-- Updated to use well.php?id= instead of directory structure -->
+                    <a href="well.php?id=<?php echo urlencode($well_id); ?>" class="text-decoration-none">
+                        <!-- If .htaccess is enabled, you can use: href="well/<?php echo urlencode($well_id); ?>" -->
                         <div class="card well-card h-100 shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title text-primary mb-3">
