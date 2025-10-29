@@ -157,9 +157,12 @@ function createChart(canvasId, labels, data, label, borderColor, backgroundColor
                     // Mark points above warning threshold for water level
                     if (isWaterLevel && context.raw >= waterLevelWarning) {
                         return 'rgba(255, 0, 0, 1)';
+                    }else {
+                        return 'rgba(113, 113, 233, 0.5)';
                     }
                     return borderColor;
                 },
+                pointRadius: 3,
                 segment: {
                     borderColor: function(context) {
                         // Change line color above warning threshold for water level
