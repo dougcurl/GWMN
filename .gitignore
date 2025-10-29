@@ -6,13 +6,13 @@ credentials.php
 **/*.cache
 cache/
 *.cache
-hp_no/
-hp_old/
+
 
 # Backup files
 *_backup/
+/backup_*
 **/archive/
-archive/
+/archive/*
 *.tar.gz
 *.zip
 
