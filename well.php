@@ -116,7 +116,7 @@ if (isset($availableParams['depth']['week_readings'])) {
     $weekDepthData = [];
     foreach ($sampledDepthReadings as $reading) {
         $weekDepthLabels[] = $reading['timestamp'];
-        $weekDepthData[] = number_format($reading['value'], 2, '.', '');
+        $weekDepthData[] = number_format($reading['value'], 3, '.', '');
     }
 }
 
@@ -131,7 +131,7 @@ if (isset($availableParams['temperature']['week_readings'])) {
     $weekTempData = [];
     foreach ($sampledTempReadings as $reading) {
         $weekTempLabels[] = $reading['timestamp'];
-        $weekTempData[] = number_format($reading['value'], 2, '.', '');
+        $weekTempData[] = number_format($reading['value'], 3, '.', '');
     }
 }
 
@@ -145,7 +145,7 @@ if (isset($availableParams['depth']['hour_readings'])) {
     $hourDepthData = [];
     foreach ($depthHourReadings as $reading) {
         $hourDepthLabels[] = $reading['timestamp'];
-        $hourDepthData[] = number_format($reading['value'], 2, '.', '');
+        $hourDepthData[] = number_format($reading['value'], 3, '.', '');
     }
 }
 
@@ -159,7 +159,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
     $hourTempData = [];
     foreach ($tempHourReadings as $reading) {
         $hourTempLabels[] = $reading['timestamp'];
-        $hourTempData[] = number_format($reading['value'], 2, '.', '');
+        $hourTempData[] = number_format($reading['value'], 3, '.', '');
     }
 }
 ?>

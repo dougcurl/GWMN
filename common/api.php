@@ -553,7 +553,7 @@ function transformWaterLevelData($readings, $method, $baseline, $water_well_elev
         foreach ($readings as $reading) {
             $transformedReading = $reading;
             // Convert height to water level by converting meters to feet and adjusting for well elevation and transducer height
-            $transformedReading['value'] = $water_well_elevation - ($transducer_height + ($reading['value'] * 3.2084));
+            $transformedReading['value'] = ($reading['value'] * 3.2084) - $transducer_height;
             $transformedReadings[] = $transformedReading;
 
             // Debug first few transformed readings
