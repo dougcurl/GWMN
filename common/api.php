@@ -1,4 +1,5 @@
 <?php
+//api.php
 // Caching functions
 // Caching functions with consistent paths
 function getCachedData($cacheKey, $ttl = 900) {

@@ -33,13 +33,21 @@ body {
 
 /* Chart container */
 .chart-container {
-    height: 300px;
+    min-height: 400px !important;
+    height: 400px;
     margin-top: 20px;
     margin-bottom: 30px;
     border-radius: 8px;
     padding: 10px;
     background-color: #fff;
     position: relative;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 /* Loading overlay */
@@ -72,6 +80,39 @@ body {
     border-radius: 50%;
     border-top-color: #007bff;
     animation: spin 1s ease-in-out infinite;
+}
+
+/* Chart loading overlay */
+.chart-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+.chart-loading-overlay .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.chart-loading-overlay p {
+    margin-top: 1rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Section loading state */
+.section-loading {
+    opacity: 0.6;
+    pointer-events: none;
 }
 
 @keyframes spin {
@@ -249,13 +290,14 @@ input:checked + .toggle-slider:before {
 }
 
 /* Page loader */
+/* Page loader */
 .page-loading-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -265,10 +307,32 @@ input:checked + .toggle-slider:before {
 
 .loading-content {
     text-align: center;
-    padding: 20px;
+    padding: 40px;
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    min-width: 350px;
+}
+
+.loading-content h4 {
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.loading-content .progress {
+    background-color: #e9ecef;
+}
+
+.loading-content .text-muted {
+    font-size: 0.875rem;
+    color: #6c757d !important;
+}
+
+/* Fade out animation for page loader */
+.page-loading-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* Header actions */

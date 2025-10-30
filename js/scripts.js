@@ -1,3 +1,4 @@
+//script.js
 // Global variables
 let animationEnabled = false;
 let autoRefreshTimer = null;
