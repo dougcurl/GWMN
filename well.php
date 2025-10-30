@@ -1,4 +1,10 @@
 <?php
+// Redirect anyone who lands on hp to kgon1
+if (isset($_GET['id']) && $_GET['id'] === 'hp') {
+    header("Location: well.php?id=kgon1", true, 301);
+    exit;
+}
+if (ob_get_level() == 0) ob_start();
 /**
  * Universal Well Display Page - well.php
  * Complete version with all features from old pages
@@ -111,7 +117,8 @@ if (isset($availableParams['depth']['week_readings'])) {
     usort($weeklyDepthReadings, function($a, $b) {
         return $a['timestamp'] - $b['timestamp'];
     });
-    $sampledDepthReadings = downsampleReadings($weeklyDepthReadings, 100);
+    // Downsample to ~30 minute intervals (336 points for 7 days)
+    $sampledDepthReadings = downsampleReadings($weeklyDepthReadings, 336);
     $weekDepthLabels = [];
     $weekDepthData = [];
     foreach ($sampledDepthReadings as $reading) {
@@ -126,7 +133,8 @@ if (isset($availableParams['temperature']['week_readings'])) {
     usort($tempReadings, function($a, $b) {
         return $a['timestamp'] - $b['timestamp'];
     });
-    $sampledTempReadings = downsampleReadings($tempReadings, 100);
+    // Downsample to ~30 minute intervals (336 points for 7 days)
+    $sampledTempReadings = downsampleReadings($tempReadings, 336);
     $weekTempLabels = [];
     $weekTempData = [];
     foreach ($sampledTempReadings as $reading) {
@@ -163,6 +171,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
     }
 }
 ?>
+<?php ob_flush(); flush(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -175,7 +184,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
 <body>
-    <div id="page-loader" class="page-loading-overlay" style="display: none;">
+    <div id="page-loader" class="page-loading-overlay" style="display: flex;">
         <div class="loading-content">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -351,7 +360,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
             ?>
                 <div class="card">
                     <div class="card-header">
-                        <span>Groundwater Level Elevation - Weekly Trend</span>
+                        <span>Groundwater Level Elevation - Weekly Trend (30 min intervals)</span>
                     </div>
                     <div class="card-body">
                         <div class="data-summary mb-3">
@@ -388,7 +397,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
                         
                         <div class="text-end">
                             <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Depth', 'weekly')">
-                                <i class="bi bi-download"></i> Export Weekly Groundwater Level Data
+                                <i class="bi bi-download"></i> Export Weekly Groundwater Level Data (15 min intervals)
                             </button>
                         </div>
                     </div>
@@ -403,7 +412,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
             ?>
                 <div class="card">
                     <div class="card-header">
-                        <span>Temperature - Weekly Trend</span>
+                        <span>Temperature - Weekly Trend (30 min intervals)</span>
                     </div>
                     <div class="card-body">
                         <div class="data-summary mb-3">
@@ -434,7 +443,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
                         
                         <div class="text-end">
                             <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Temperature', 'weekly')">
-                                <i class="bi bi-download"></i> Export Weekly Temperature Data
+                                <i class="bi bi-download"></i> Export Weekly Temperature Data (15 min intervals)
                             </button>
                         </div>
                     </div>
@@ -482,7 +491,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
             ?>
                 <div class="card">
                     <div class="card-header">
-                        <span>Groundwater Level Elevation - Hourly Trend</span>
+                        <span>Groundwater Level Elevation - Hourly Trend (15 min intervals)</span>
                     </div>
                     <div class="card-body">
                         <div class="data-summary mb-3">
@@ -519,7 +528,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
                         
                         <div class="text-end">
                             <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Depth', 'hourly')">
-                                <i class="bi bi-download"></i> Export Hourly Groundwater Level Data
+                                <i class="bi bi-download"></i> Export Hourly Groundwater Level Data (15 min intervals)
                             </button>
                         </div>
                     </div>
@@ -534,7 +543,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
             ?>
                 <div class="card">
                     <div class="card-header">
-                        <span>Temperature - Hourly Trend</span>
+                        <span>Temperature - Hourly Trend (15 min intervals)</span>
                     </div>
                     <div class="card-body">
                         <div class="data-summary mb-3">
@@ -565,7 +574,7 @@ if (isset($availableParams['temperature']['hour_readings'])) {
                         
                         <div class="text-end">
                             <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Temperature', 'hourly')">
-                                <i class="bi bi-download"></i> Export Hourly Temperature Data
+                                <i class="bi bi-download"></i> Export Hourly Temperature Data (15 min intervals)
                             </button>
                         </div>
                     </div>

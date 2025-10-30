@@ -162,7 +162,6 @@ function createChart(canvasId, labels, data, label, borderColor, backgroundColor
                     }
                     return borderColor;
                 },
-                pointRadius: 3,
                 segment: {
                     borderColor: function(context) {
                         // Change line color above warning threshold for water level
@@ -212,7 +211,21 @@ function createChart(canvasId, labels, data, label, borderColor, backgroundColor
                     intersect: false,
                     callbacks: {
                         label: function(context) {
-                            return context.dataset.label + ': ' + parseFloat(context.raw).toFixed(2);
+                            let value = parseFloat(context.raw).toFixed(2);
+                            let label = context.dataset.label;
+                            
+                            // For groundwater level elevation, show "Elevation: XX.XX ft"
+                            if (label.includes('Groundwater Level Elevation')) {
+                                return 'Elevation: ' + value + ' ft';
+                            }
+                            // For temperature, show "Temperature: XX.XX °F"
+                            else if (label.includes('Temperature')) {
+                                return label + ': ' + value;
+                            }
+                            // For other parameters, show as is
+                            else {
+                                return label + ': ' + value;
+                            }
                         }
                     }
                 }

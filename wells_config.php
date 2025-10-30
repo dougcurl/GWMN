@@ -14,7 +14,7 @@
  */
 
 $wells_config = [
-    'hp' => [
+    'kgon1' => [
         'well_id' => 'hp',
         'location_id' => '5515870852612096',
         'common_name' => 'Horse Park',
@@ -26,7 +26,7 @@ $wells_config = [
         'depth_method' => 'Baseline_Elev',  //method used to measure depth to water from raw data
         // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
         'casing_height' => 1.25, //height of well casing above ground surface
-        //'transducer_height' => -33.75, //height of measuring point above ground surface - may be negative if below ground surface
+        //'transducer_height' => , //height of measuring point above ground surface - may be negative if below ground surface
         'water_level_baseline' => 804.25, //NAVD88 elevation of the measuring point
         'water_level_warning' => 838, //top of the well head casing - elevation at top of the well casing
         'reading_interval' => 15, // Data recording interval in minutes
@@ -41,20 +41,21 @@ $wells_config = [
             'temperature' => '°F'
         ]
     ],
-    'hickman1' => [
+    'kgon5' => [
         'well_id' => 'hickman1',
         'location_id' => '5898229225619456', // Replace with actual location ID
         'common_name' => 'Hickman1',
         'well_numeric_id' => 'KGON-5',
         'full_name' => 'Hickman 1 Deep Water Well',
         'property_owner' => 'Naranjo Family',
-        'depth_method' => 'TD_Height', //method used to measure depth to water from raw data 
-        // TD_Height Well Elevation: Water Well Surface Elevation -  Transducer Height - Raw Well Depth = Water Level Elevation
+        'depth_method' => 'Baseline_Elev', //method used to measure depth to water from raw data - will only show the height
+        // TD_Height Well Elevation: Transducer Height - Raw Well Depth = Water Level Elevation
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
         'water_well_elevation' => 421, //ground surface elevation at well location
         'water_well_depth' => 380, //depth of the well
         'casing_height' => 1.5, //height of well casing above ground surface
         'transducer_height' => 1.17, //height of measuring point above ground surface
-        //'water_level_baseline' => 421, // NAVD88 elevation of the measuring point
+        'water_level_baseline' => 325.17, // NAVD88 elevation of the measuring point - transdcuer height in well subtracted from ground surface elevation
         'water_level_warning' =>  422.5, // elevation at top of the well casing
         'reading_interval' => 15, // Data recording interval in minutes
         'aquifer_name' => 'Middle Claiborne Aquifer',
