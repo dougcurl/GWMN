@@ -13,7 +13,7 @@ $all_wells = getAllWells();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KGS Groundwater Monitoring Network - Real-Time Data Wells</title>
+    <title>Kentucky Groundwater Observation Network - Real-Time Data Wells</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
     <style>
@@ -37,14 +37,15 @@ $all_wells = getAllWells();
     <div class="hero-section">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-2 text-center text-md-start mb-3 mb-md-0">
-                    <img src="https://kgs.uky.edu/kygeode/img/UK-KGSlogos/UK-KGS-lockup/KGS.png" 
+                <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
+                    <a href="https://kygs.uky.edu/"><img src="https://kgs.uky.edu/kygeode/img/UK-KGSlogos/UK-KGS-lockup/KGS.png" 
                          alt="KGS Logo" 
                          class="img-fluid" 
-                         style="max-height: 100px; filter: brightness(0) invert(1);">
+                         style="max-height: 250px; filter: brightness(0) invert(1);">
+                    </a>
                 </div>
-                <div class="col-md-10">
-                    <h1 class="display-4 mb-2">Kentucky Groundwater Monitoring Network</h1>
+                <div class="col-md-11 text-md-start">
+                    <h1 class="display-4 mb-2">Kentucky Groundwater Observation Network</h1>
                     <p class="lead mb-0">
                         Real-time groundwater level and temperature monitoring across Kentucky
                     </p>

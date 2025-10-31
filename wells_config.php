@@ -19,8 +19,10 @@ $wells_config = [
         'location_id' => '5515870852612096',
         'common_name' => 'Horse Park',
         'well_numeric_id' => 'KGON-1',
+        'akgwa_number' => '',
         'full_name' => 'Kentucky Horse Park Water Well',
         'property_owner' => 'Kentucky Horse Park', //name of property owner
+        'property_logo' => 'images/khp-logo.png', //relative path to logo image
         'water_well_elevation' => 838, //ground surface elevation at well location
         'water_well_depth' => 80, //depth of the well
         'depth_method' => 'Baseline_Elev',  //method used to measure depth to water from raw data
@@ -41,12 +43,41 @@ $wells_config = [
             'temperature' => '°F'
         ]
     ],
+        'kgon4' => [
+        'well_id' => 'benton',
+        'location_id' => '4985108709507072',
+        'common_name' => 'Benton-Rose Well',
+        'well_numeric_id' => 'KGON-4',
+        'akgwa_number' => '00057315',
+        'full_name' => 'Benton-Rose Well',
+        'property_owner' => 'Jodi and Wendy Rose', //name of property owner
+        'water_well_elevation' => 462, //ground surface elevation at well location
+        'water_well_depth' => 221, //depth of the well
+        'depth_method' => 'Baseline_Elev',  //method used to measure depth to water from raw data
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
+        'casing_height' => 1.42, //height of well casing above ground surface
+        //'transducer_height' => , //height of measuring point above ground surface - may be negative if below ground surface
+        'water_level_baseline' => 368.39, //NAVD88 elevation of the measuring point
+        'water_level_warning' => 463.42, //top of the well head casing - elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => 'McNairy Formation',
+        'description' => 'Benton-Rose groundwater monitoring well (KGON 4) located in Marshall County, KY. Depth of well is 221 ft.',
+        'param_names' => [
+            'depth' => 'Groundwater Level Elevation',
+            'temperature' => 'Temperature'
+        ],
+        'param_units' => [
+            'depth' => 'ft',
+            'temperature' => '°F'
+        ]
+    ],
     'kgon5' => [
         'well_id' => 'hickman1',
         'location_id' => '5898229225619456', // Replace with actual location ID
         'common_name' => 'Hickman1',
         'well_numeric_id' => 'KGON-5',
-        'full_name' => 'Hickman 1 Deep Water Well',
+        'akgwa_number' => '80019466',        
+        'full_name' => 'Hickman Deep Water Well',
         'property_owner' => 'Naranjo Family',
         'depth_method' => 'Baseline_Elev', //method used to measure depth to water from raw data - will only show the height
         // TD_Height Well Elevation: Transducer Height - Raw Well Depth = Water Level Elevation
@@ -59,7 +90,96 @@ $wells_config = [
         'water_level_warning' =>  422.5, // elevation at top of the well casing
         'reading_interval' => 15, // Data recording interval in minutes
         'aquifer_name' => 'Middle Claiborne Aquifer',
-        'description' => 'Hickman 1 deep groundwater monitoring well (KGON 5) located in Hickman County, KY. Depth of well is 380 ft.',
+        'description' => 'Hickman deep groundwater monitoring well (KGON 5) located in Hickman County, KY. Depth of well is 380 ft.',
+        'param_names' => [
+            'depth' => 'Groundwater Level Elevation',
+            'temperature' => 'Temperature'
+        ],
+        'param_units' => [
+            'depth' => 'ft',
+            'temperature' => '°F'
+        ]
+     ],
+    'kgon6' => [
+        'well_id' => 'hickman2',
+        'location_id' => '6070239209717760', // Replace with actual location ID
+        'common_name' => 'Hickman2',
+        'well_numeric_id' => 'KGON-6',
+        'akgwa_number' => '80046534', 
+        'full_name' => 'Hickman Shallow Water Well',
+        'property_owner' => 'Naranjo Family',
+        'depth_method' => 'Baseline_Elev', //method used to measure depth to water from raw data - will only show the height
+        // TD_Height Well Elevation: Transducer Height - Raw Well Depth = Water Level Elevation
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
+        'water_well_elevation' => 424, //ground surface elevation at well location
+        'water_well_depth' => 180, //depth of the well
+        'casing_height' => 1.29, //height of well casing above ground surface
+        //'transducer_height' => 1.17, //height of measuring point above ground surface
+        'water_level_baseline' => 324.04, // NAVD88 elevation of the measuring point - transdcuer height in well subtracted from ground surface elevation
+        'water_level_warning' =>  425.29, // elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => 'Upper Claiborne Aquifer',
+        'description' => 'Hickman shallow groundwater monitoring well (KGON 6) located in Hickman County, KY. Depth of well is 180 ft.',
+        'param_names' => [
+            'depth' => 'Groundwater Level Elevation',
+            'temperature' => 'Temperature'
+        ],
+        'param_units' => [
+            'depth' => 'ft',
+            'temperature' => '°F'
+        ]
+    ],
+    'kgon8' => [
+        'well_id' => 'msu2',
+        'location_id' => '6051285955248128', // Replace with actual location ID
+        'common_name' => 'MSU2',
+        'well_numeric_id' => 'KGON-8',
+        'akgwa_number' => '80046532',
+        'full_name' => 'Murray State University Shallow Water Well',
+        'property_owner' => 'Murray State University',
+        'property_logo' => 'images/MSUHutsonSchool.jpg',
+        'depth_method' => 'Baseline_Elev', //method used to measure depth to water from raw data - will only show the height
+        // TD_Height Well Elevation: Transducer Height - Raw Well Depth = Water Level Elevation
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
+        'water_well_elevation' => 576, //ground surface elevation at well location
+        'water_well_depth' => 150, //depth of the well
+        'casing_height' => 3.24, //height of well casing above ground surface
+        //'transducer_height' => 1.17, //height of measuring point above ground surface
+        'water_level_baseline' => 502.08, // NAVD88 elevation of the measuring point - transdcuer height in well subtracted from ground surface elevation
+        'water_level_warning' =>  579.24, // elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => 'Lower Wilcox Formation',
+        'description' => 'Murray State University shallow groundwater monitoring well (KGON 8) located in Hickman County, KY. Depth of well is 150 ft.',
+        'param_names' => [
+            'depth' => 'Groundwater Level Elevation',
+            'temperature' => 'Temperature'
+        ],
+        'param_units' => [
+            'depth' => 'ft',
+            'temperature' => '°F'
+        ]
+    ],
+    'kgon9' => [
+        'well_id' => 'princeton',
+        'location_id' => '5127989815738368', // Replace with actual location ID
+        'common_name' => 'Princeton-UKREC',
+        'well_numeric_id' => 'KGON-9',
+        'akgwa_number' => '00070087',
+        'full_name' => 'University of Kentucky Research and Education Center at Princeton Water Well',
+        'property_owner' => 'University of Kentucky Research and Education Center at Princeton',
+        'property_logo' => 'images/UKREC-logo.jpg',
+        'depth_method' => 'Baseline_Elev', //method used to measure depth to water from raw data - will only show the height
+        // TD_Height Well Elevation: Transducer Height - Raw Well Depth = Water Level Elevation
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
+        'water_well_elevation' => 485, //ground surface elevation at well location
+        'water_well_depth' => 59.3, //depth of the well
+        'casing_height' => 2.48, //height of well casing above ground surface
+        //'transducer_height' => 1.17, //height of measuring point above ground surface
+        'water_level_baseline' => 403.30, // NAVD88 elevation of the measuring point - transdcuer height in well subtracted from ground surface elevation
+        'water_level_warning' =>  487.48, // elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => 'Ste. Genevieve Limestone',
+        'description' => 'University of Kentucky Research and Education Center at Princeton shallow groundwater monitoring well (KGON 9) located in Franklin County, KY. Depth of well is 59.3 ft.',
         'param_names' => [
             'depth' => 'Groundwater Level Elevation',
             'temperature' => 'Temperature'

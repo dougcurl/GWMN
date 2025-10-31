@@ -32,7 +32,7 @@ $well_numeric_id = isset($well_config['well_numeric_id']) ? $well_config['well_n
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KGS Groundwater Well Monitoring - <?php echo htmlspecialchars($page_title); ?></title>
+    <title>Kentucky Groundwater Observation Network- <?php echo htmlspecialchars($page_title); ?> (<?php echo htmlspecialchars($well_numeric_id); ?>)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="css/styles.css" rel="stylesheet">
@@ -69,8 +69,8 @@ $well_numeric_id = isset($well_config['well_numeric_id']) ? $well_config['well_n
                     </a>
                 </div>
                 <div class="col-md-6 col-sm-9">
-                    <h1 class="mb-1 fs-3"><?php echo htmlspecialchars($page_title); ?></h1>
-                    <h2 class="fs-5 text-muted"><a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php">KGS Groundwater Monitoring Network</a></h2>
+                    <h1 class="mb-1 fs-3"><?php echo htmlspecialchars($page_title); ?><br>(<?php echo htmlspecialchars($well_numeric_id); ?>)</h1>
+                    <h2 class="fs-5 text-muted"><a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php">Kentucky Groundwater Observation Network</a></h2>
                 </div>
                 <div class="col-md-4 col-12 d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
                     <div class="d-flex flex-row gap-2">
