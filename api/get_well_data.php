@@ -1,5 +1,5 @@
 <?php
-//get_well_data.php
+//api/get_well_data.php
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../credentials.php';

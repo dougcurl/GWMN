@@ -81,7 +81,10 @@ $well_numeric_id = isset($well_config['well_numeric_id']) ? $well_config['well_n
             <hr class="mt-3">
         </div>
 
-        <!-- ADD THIS: Map and Latest Readings container -->
+        <!-- Well Information Card -->
+        <div id="well-info-section"></div>
+
+        <!-- Map and Latest Readings container -->
         <div class="row mt-4" id="map-readings-container">
             <!-- Map and readings will be inserted here by JavaScript -->
         </div>
@@ -103,10 +106,79 @@ $well_numeric_id = isset($well_config['well_numeric_id']) ? $well_config['well_n
         const wellId = '<?php echo htmlspecialchars($current_well_id); ?>';
         const wellNumericId = '<?php echo htmlspecialchars($well_numeric_id); ?>';
         
+        // Additional config data
+        const wellConfig = {
+            propertyOwner: <?php echo json_encode($well_config['property_owner'] ?? ''); ?>,
+            propertyLogo: <?php echo json_encode($well_config['property_logo'] ?? ''); ?>,
+            description: <?php echo json_encode($well_config['description'] ?? ''); ?>,
+            aquiferName: <?php echo json_encode($well_config['aquifer_name'] ?? ''); ?>,
+            akgwaNumber: <?php echo json_encode($well_config['akgwa_number'] ?? ''); ?>,
+            wellDepth: <?php echo json_encode($well_config['water_well_depth'] ?? ''); ?>
+        };
+        
         // Load data immediately after page structure is visible
         document.addEventListener('DOMContentLoaded', function() {
+            displayWellInfo();
             loadWellData();
         });
+        // ============================================================================
+        // WELL INFORMATION DISPLAY
+        // ============================================================================
+
+        /**
+         * Display well information card
+
+         */
+        // Display well information
+        function displayWellInfo() {
+            const infoSection = document.getElementById('well-info-section');
+            let html = '<div class="well-info-card">';
+            
+            // Property owner and logo
+            if (wellConfig.propertyOwner || wellConfig.propertyLogo) {
+                html += '<div class="property-info">';
+                if (wellConfig.propertyLogo) {
+                    html += `<div class="property-owner"><img src="${wellConfig.propertyLogo}" alt="Property Logo" class="property-logo"></div>`;
+                }
+                if (wellConfig.propertyOwner) {
+                    html += `<div class="property-owner">Property Owner: ${wellConfig.propertyOwner}</div>`;
+                }
+                html += '</div>';
+            }
+            
+            // Description
+            if (wellConfig.description) {
+                html += '<div class="info-item">';
+                html += '<div class="info-label">Description</div>';
+                html += `<div class="info-value">${wellConfig.description}</div>`;
+                html += '</div>';
+            }
+            
+            // Aquifer name
+            if (wellConfig.aquiferName) {
+                html += '<div class="info-item mt-3">';
+                html += '<div class="info-label">Aquifer</div>';
+                html += `<div class="info-value mt-2"><span class="aquifer-badge">${wellConfig.aquiferName}</span></div>`;
+                html += '</div>';
+            }
+            
+            // KGS Well Information Link
+            if (wellConfig.akgwaNumber) {
+                html += '<div class="info-item mt-3">';
+                html += '<div class="info-label">Additional Information</div>';
+                html += '<div class="info-value mt-2">';
+                html += `<a href="https://kgs.uky.edu/kgsweb/DataSearching/Water/wellinfo.asp?id=${wellConfig.akgwaNumber}" 
+                         target="_blank" class="kgs-link">
+                         <i class="bi bi-box-arrow-up-right"></i>
+                         View Well Information in KY Groundwater Data Repository (KGS)
+                         </a>`;
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            infoSection.innerHTML = html;
+        }
     </script>
     <script src="js/well-loader.js"></script>
 </body>

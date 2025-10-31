@@ -1,4 +1,87 @@
 // js/well-loader.js
+
+// ============================================================================
+// NO-DATA HANDLING HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Display a "no data" message when there's no data for a time period
+ * @param {string} containerId - ID of the container to show the message in
+ * @param {string} timeperiod - Description of the time period (e.g., "this week", "the last 24 hours")
+ */
+function showNoDataMessage(containerId, timeperiod) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="no-data-message">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <h4>No Data Available</h4>
+            <p>There is no data available for ${timeperiod}.</p>
+            <p class="mt-2 small text-muted">This could be due to sensor maintenance, connectivity issues, or the well may not have been actively monitored during this period.</p>
+        </div>
+    `;
+}
+
+/**
+ * Check if readings data is empty or invalid
+ * @param {object} data - The data object from the API
+ * @param {string} dataKey - The key to check (e.g., 'weekly', 'hourly')
+ * @returns {boolean} - True if data is empty/invalid
+ */
+function isDataEmpty(data, dataKey) {
+    if (!data || !data[dataKey]) {
+        return true;
+    }
+    
+    const params = data[dataKey];
+    
+    // Check if any parameter has readings
+    for (const key in params) {
+        const param = params[key];
+        
+        // Check for week_readings or hour_readings
+        if (param.week_readings && param.week_readings.length > 0) {
+            return false;
+        }
+        if (param.hour_readings && param.hour_readings.length > 0) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Helper function to validate and prepare chart data
+ * Returns null if data is insufficient for charting
+ */
+function prepareChartData(paramData, readingsKey) {
+    if (!paramData || !paramData[readingsKey] || paramData[readingsKey].length === 0) {
+        return null;
+    }
+    
+    const readings = paramData[readingsKey];
+    
+    // Make sure we have valid data points
+    const validReadings = readings.filter(r => 
+        r.value !== null && 
+        r.value !== undefined && 
+        !isNaN(r.value) && 
+        r.timestamp
+    );
+    
+    if (validReadings.length === 0) {
+        return null;
+    }
+    
+    return validReadings;
+}
+
+// ============================================================================
+// LOADING MESSAGES
+// ============================================================================
+
 const loadingMessages = {
     connecting: [
         'Waking up the sensors...',
@@ -39,8 +122,10 @@ function getRandomMessage(category) {
     return messages[Math.floor(Math.random() * messages.length)];
 }
 
+// ============================================================================
+// MAIN DATA LOADING FUNCTION
+// ============================================================================
 
-// Then update the function to use random messages:
 async function loadWellData() {
     try {
         updateLoadingProgress(0, 'Connecting...', getRandomMessage('connecting'));
@@ -103,6 +188,10 @@ async function loadWellData() {
     }
 }
 
+// ============================================================================
+// LATEST READINGS
+// ============================================================================
+
 async function loadLatestReadings() {
     try {
         const response = await fetch(`api/get_well_data.php?id=${wellId}&type=latest`);
@@ -114,10 +203,16 @@ async function loadLatestReadings() {
             throw new Error(data.error);
         }
         
+        // Check if we have any latest data
+        if (!data.latest || Object.keys(data.latest).length === 0) {
+            console.warn('No latest readings available');
+            return;
+        }
+        
         displayLatestReadings(data.latest);
     } catch (error) {
         console.error('Error in loadLatestReadings:', error);
-        throw error;
+        // Don't throw - allow page to continue loading other sections
     }
 }
 
@@ -187,6 +282,10 @@ function displayLatestReadings(latest) {
     }
 }
 
+// ============================================================================
+// MAP/LOCATION
+// ============================================================================
+
 async function loadMap() {
     try {
         const response = await fetch(`api/get_well_data.php?id=${wellId}&type=location`);
@@ -240,6 +339,10 @@ function displayMap(location) {
     }
 }
 
+// ============================================================================
+// WEEKLY CHARTS
+// ============================================================================
+
 async function loadWeeklyCharts() {
     try {
         const response = await fetch(`api/get_well_data.php?id=${wellId}&type=weekly`);
@@ -251,11 +354,33 @@ async function loadWeeklyCharts() {
             throw new Error(data.error);
         }
         
+        // Check if weekly data is empty
+        if (isDataEmpty(data, 'weekly')) {
+            displayEmptyWeeklySection();
+            return;
+        }
+        
         displayWeeklyCharts(data.weekly);
     } catch (error) {
         console.error('Error loading weekly charts:', error);
         throw error;
     }
+}
+
+function displayEmptyWeeklySection() {
+    const content = document.getElementById('well-content');
+    const html = `
+        <div class="mb-4">
+            <h2>Weekly Data</h2>
+            <div class="no-data-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <h4>No Data Available</h4>
+                <p>There is no data available for the past 7 days.</p>
+                <p class="mt-2 small text-muted">This could be due to sensor maintenance, connectivity issues, or the well may not have been actively monitored during this period.</p>
+            </div>
+        </div>
+    `;
+    content.innerHTML = html;
 }
 
 function displayWeeklyCharts(weekly) {
@@ -269,26 +394,36 @@ function displayWeeklyCharts(weekly) {
     // Wait for DOM to update, then create charts
     setTimeout(() => {
         if (weekly.depth && weekly.depth.week_readings) {
-            window.chartData = window.chartData || {};
-            window.chartData.weekDepth = {
-                readings: weekly.depth.week_readings,
-                unit: weekly.depth.unit
-            };
-            createDepthChart('week-chart-depth', weekly.depth.week_readings, weekly.depth.unit, true);
+            const depthReadings = prepareChartData(weekly.depth, 'week_readings');
+            if (depthReadings) {
+                window.chartData = window.chartData || {};
+                window.chartData.weekDepth = {
+                    readings: depthReadings,
+                    unit: weekly.depth.unit
+                };
+                createDepthChart('week-chart-depth', depthReadings, weekly.depth.unit, true);
+            }
         }
         if (weekly.temperature && weekly.temperature.week_readings) {
-            window.chartData = window.chartData || {};
-            window.chartData.weekTemp = {
-                readings: weekly.temperature.week_readings,
-                unit: weekly.temperature.unit
-            };
-            createTemperatureChart('week-chart-temperature', weekly.temperature.week_readings, weekly.temperature.unit);
+            const tempReadings = prepareChartData(weekly.temperature, 'week_readings');
+            if (tempReadings) {
+                window.chartData = window.chartData || {};
+                window.chartData.weekTemp = {
+                    readings: tempReadings,
+                    unit: weekly.temperature.unit
+                };
+                createTemperatureChart('week-chart-temperature', tempReadings, weekly.temperature.unit);
+            }
         }
         
         // Reinitialize animation toggle after recreating the controls
         initAnimationToggle();
     }, 100);
 }
+
+// ============================================================================
+// HOURLY CHARTS
+// ============================================================================
 
 async function loadHourlyCharts() {
     try {
@@ -301,11 +436,33 @@ async function loadHourlyCharts() {
             throw new Error(data.error);
         }
         
+        // Check if hourly data is empty
+        if (isDataEmpty(data, 'hourly')) {
+            displayEmptyHourlySection();
+            return;
+        }
+        
         displayHourlyCharts(data.hourly);
     } catch (error) {
         console.error('Error loading hourly charts:', error);
         throw error;
     }
+}
+
+function displayEmptyHourlySection() {
+    const content = document.getElementById('well-content');
+    const html = `
+        <div class="mb-4 mt-5">
+            <h2>Daily Data</h2>
+            <div class="no-data-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <h4>No Data Available</h4>
+                <p>There is no data available for the last 24 hours.</p>
+                <p class="mt-2 small text-muted">This could be due to sensor maintenance, connectivity issues, or the well may not have been actively monitored during this period.</p>
+            </div>
+        </div>
+    `;
+    content.insertAdjacentHTML('beforeend', html);
 }
 
 function displayHourlyCharts(hourly) {
@@ -320,23 +477,33 @@ function displayHourlyCharts(hourly) {
     // Wait for DOM to update, then create charts
     setTimeout(() => {
         if (hourly.depth && hourly.depth.hour_readings) {
-            window.chartData = window.chartData || {};
-            window.chartData.hourDepth = {
-                readings: hourly.depth.hour_readings,
-                unit: hourly.depth.unit
-            };
-            createDepthChart('hour-chart-depth', hourly.depth.hour_readings, hourly.depth.unit, false);
+            const depthReadings = prepareChartData(hourly.depth, 'hour_readings');
+            if (depthReadings) {
+                window.chartData = window.chartData || {};
+                window.chartData.hourDepth = {
+                    readings: depthReadings,
+                    unit: hourly.depth.unit
+                };
+                createDepthChart('hour-chart-depth', depthReadings, hourly.depth.unit, false);
+            }
         }
         if (hourly.temperature && hourly.temperature.hour_readings) {
-            window.chartData = window.chartData || {};
-            window.chartData.hourTemp = {
-                readings: hourly.temperature.hour_readings,
-                unit: hourly.temperature.unit
-            };
-            createTemperatureChart('hour-chart-temperature', hourly.temperature.hour_readings, hourly.temperature.unit);
+            const tempReadings = prepareChartData(hourly.temperature, 'hour_readings');
+            if (tempReadings) {
+                window.chartData = window.chartData || {};
+                window.chartData.hourTemp = {
+                    readings: tempReadings,
+                    unit: hourly.temperature.unit
+                };
+                createTemperatureChart('hour-chart-temperature', tempReadings, hourly.temperature.unit);
+            }
         }
     }, 100);
 }
+
+// ============================================================================
+// CHART CREATION
+// ============================================================================
 
 function createDepthChart(canvasId, readings, unit, downsample) {
     // Downsample for weekly view
@@ -482,6 +649,10 @@ function createTemperatureChart(canvasId, readings, unit) {
     });
 }
 
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
 function downsampleData(data, targetPoints) {
     if (data.length <= targetPoints) return data;
     
@@ -520,6 +691,29 @@ function formatDateRange(startTimestamp, endTimestamp) {
     
     return `${startStr} to ${endStr}`;
 }
+
+function updateLoadingProgress(percentage, message, detail) {
+    const progressBar = document.getElementById('loading-progress');
+    const messageEl = document.getElementById('loading-message');
+    const detailEl = document.getElementById('loading-detail');
+    
+    if (progressBar) {
+        progressBar.style.width = percentage + '%';
+        progressBar.setAttribute('aria-valuenow', percentage);
+    }
+    
+    if (messageEl && message) {
+        messageEl.textContent = message;
+    }
+    
+    if (detailEl && detail) {
+        detailEl.textContent = detail;
+    }
+}
+
+// ============================================================================
+// ANIMATION AND AUTO-REFRESH
+// ============================================================================
 
 function initAnimationToggle() {
     const toggle = document.getElementById('animation-toggle');
@@ -647,7 +841,10 @@ async function refreshAllData() {
     }
 }
 
-// Date range control functions - AJAX version (no page reload)
+// ============================================================================
+// DATE RANGE CONTROLS - AJAX VERSION (no page reload)
+// ============================================================================
+
 function updateWeekRange(days) {
     const weekStartInput = document.getElementById('week_start');
     const currentStart = weekStartInput.value;
@@ -737,6 +934,35 @@ async function loadWeeklyDataWithDate(weekStart) {
             throw new Error(data.error);
         }
         
+        // Check if data is empty
+        if (isDataEmpty(data, 'weekly')) {
+            // Find and remove old weekly content
+            const wellContent = document.getElementById('well-content');
+            const hourlyHeaderElement = document.getElementById('hourly-data-header');
+            
+            // Remove everything before the hourly section
+            while (wellContent.firstChild && wellContent.firstChild !== hourlyHeaderElement) {
+                wellContent.removeChild(wellContent.firstChild);
+            }
+            
+            // Show no data message
+            const noDataHTML = `
+                <div class="mb-4">
+                    <h2>Weekly Data</h2>
+                    <div class="no-data-message">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <h4>No Data Available</h4>
+                        <p>There is no data available for the selected time period.</p>
+                        <p class="mt-2 small text-muted">This could be due to sensor maintenance, connectivity issues, or the well may not have been actively monitored during this period.</p>
+                    </div>
+                </div>
+            `;
+            
+            wellContent.insertAdjacentHTML('afterbegin', noDataHTML);
+            hideWeeklyLoadingSpinner();
+            return;
+        }
+        
         // Find and remove old weekly content
         const wellContent = document.getElementById('well-content');
         const hourlyHeaderElement = document.getElementById('hourly-data-header');
@@ -758,20 +984,26 @@ async function loadWeeklyDataWithDate(weekStart) {
         // Wait a bit then create the charts
         setTimeout(() => {
             if (data.weekly.depth && data.weekly.depth.week_readings) {
-                window.chartData = window.chartData || {};
-                window.chartData.weekDepth = {
-                    readings: data.weekly.depth.week_readings,
-                    unit: data.weekly.depth.unit
-                };
-                createDepthChart('week-chart-depth', data.weekly.depth.week_readings, data.weekly.depth.unit, true);
+                const depthReadings = prepareChartData(data.weekly.depth, 'week_readings');
+                if (depthReadings) {
+                    window.chartData = window.chartData || {};
+                    window.chartData.weekDepth = {
+                        readings: depthReadings,
+                        unit: data.weekly.depth.unit
+                    };
+                    createDepthChart('week-chart-depth', depthReadings, data.weekly.depth.unit, true);
+                }
             }
             if (data.weekly.temperature && data.weekly.temperature.week_readings) {
-                window.chartData = window.chartData || {};
-                window.chartData.weekTemp = {
-                    readings: data.weekly.temperature.week_readings,
-                    unit: data.weekly.temperature.unit
-                };
-                createTemperatureChart('week-chart-temperature', data.weekly.temperature.week_readings, data.weekly.temperature.unit);
+                const tempReadings = prepareChartData(data.weekly.temperature, 'week_readings');
+                if (tempReadings) {
+                    window.chartData = window.chartData || {};
+                    window.chartData.weekTemp = {
+                        readings: tempReadings,
+                        unit: data.weekly.temperature.unit
+                    };
+                    createTemperatureChart('week-chart-temperature', tempReadings, data.weekly.temperature.unit);
+                }
             }
             
             // Reinitialize animation toggle
@@ -818,6 +1050,42 @@ async function loadHourlyDataWithDate(hourStart) {
             throw new Error(data.error);
         }
         
+        // Check if data is empty
+        if (isDataEmpty(data, 'hourly')) {
+            // Remove old hourly content
+            const hourlyHeaderElement = document.getElementById('hourly-data-header');
+            const cardsToRemove = [];
+            let elem = hourlyHeaderElement.nextElementSibling;
+            
+            while (elem) {
+                if (elem.classList.contains('card')) {
+                    cardsToRemove.push(elem);
+                }
+                elem = elem.nextElementSibling;
+            }
+            
+            hourlyHeaderElement.remove();
+            cardsToRemove.forEach(card => card.remove());
+            
+            // Show no data message
+            const noDataHTML = `
+                <div class="mb-4 mt-5">
+                    <h2>Daily Data</h2>
+                    <div class="no-data-message">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <h4>No Data Available</h4>
+                        <p>There is no data available for the selected time period.</p>
+                        <p class="mt-2 small text-muted">This could be due to sensor maintenance, connectivity issues, or the well may not have been actively monitored during this period.</p>
+                    </div>
+                </div>
+            `;
+            
+            const wellContent = document.getElementById('well-content');
+            wellContent.insertAdjacentHTML('beforeend', noDataHTML);
+            hideHourlyLoadingSpinner();
+            return;
+        }
+        
         // Remove old hourly content (everything from hourly header onwards)
         const hourlyHeaderElement = document.getElementById('hourly-data-header');
         const cardsToRemove = [];
@@ -841,20 +1109,26 @@ async function loadHourlyDataWithDate(hourStart) {
         // Wait a bit then create the charts
         setTimeout(() => {
             if (data.hourly.depth && data.hourly.depth.hour_readings) {
-                window.chartData = window.chartData || {};
-                window.chartData.hourDepth = {
-                    readings: data.hourly.depth.hour_readings,
-                    unit: data.hourly.depth.unit
-                };
-                createDepthChart('hour-chart-depth', data.hourly.depth.hour_readings, data.hourly.depth.unit, false);
+                const depthReadings = prepareChartData(data.hourly.depth, 'hour_readings');
+                if (depthReadings) {
+                    window.chartData = window.chartData || {};
+                    window.chartData.hourDepth = {
+                        readings: depthReadings,
+                        unit: data.hourly.depth.unit
+                    };
+                    createDepthChart('hour-chart-depth', depthReadings, data.hourly.depth.unit, false);
+                }
             }
             if (data.hourly.temperature && data.hourly.temperature.hour_readings) {
-                window.chartData = window.chartData || {};
-                window.chartData.hourTemp = {
-                    readings: data.hourly.temperature.hour_readings,
-                    unit: data.hourly.temperature.unit
-                };
-                createTemperatureChart('hour-chart-temperature', data.hourly.temperature.hour_readings, data.hourly.temperature.unit);
+                const tempReadings = prepareChartData(data.hourly.temperature, 'hour_readings');
+                if (tempReadings) {
+                    window.chartData = window.chartData || {};
+                    window.chartData.hourTemp = {
+                        readings: tempReadings,
+                        unit: data.hourly.temperature.unit
+                    };
+                    createTemperatureChart('hour-chart-temperature', tempReadings, data.hourly.temperature.unit);
+                }
             }
             
             // Hide loading spinner and scroll
@@ -882,7 +1156,10 @@ async function loadHourlyDataWithDate(hourStart) {
     }
 }
 
-// Helper functions for loading spinners
+// ============================================================================
+// LOADING SPINNER HELPERS
+// ============================================================================
+
 function showWeeklyLoadingSpinner() {
     const weeklyHeader = document.getElementById('weekly-data-header');
     if (!weeklyHeader) return;
@@ -972,6 +1249,10 @@ function hideHourlyLoadingSpinner() {
         elem = elem.nextElementSibling;
     }
 }
+
+// ============================================================================
+// HTML BUILDERS
+// ============================================================================
 
 // Helper function to build weekly charts HTML (extracted from displayWeeklyCharts)
 function buildWeeklyChartsHTML(weekly) {
@@ -1328,90 +1609,9 @@ function buildHourlyChartsHTML(hourly) {
     return html;
 }
 
-function updateLoadingProgress(percentage, message, detail) {
-    const progressBar = document.getElementById('loading-progress');
-    const messageEl = document.getElementById('loading-message');
-    const detailEl = document.getElementById('loading-detail');
-    
-    if (progressBar) {
-        progressBar.style.width = percentage + '%';
-        progressBar.setAttribute('aria-valuenow', percentage);
-    }
-    
-    if (messageEl && message) {
-        messageEl.textContent = message;
-    }
-    
-    if (detailEl && detail) {
-        detailEl.textContent = detail;
-    }
-}
-
-async function loadWellData() {
-    try {
-        updateLoadingProgress(0, 'Connecting...', 'Establishing connection to data source');
-        
-        // Stage 1: Load latest readings first (fastest)
-        updateLoadingProgress(10, 'Loading latest readings...', 'Fetching current sensor values');
-        await loadLatestReadings();
-        updateLoadingProgress(25, 'Latest readings loaded', 'Current values retrieved successfully');
-        
-        // Stage 2: Load location/map in parallel
-        updateLoadingProgress(30, 'Loading well location...', 'Retrieving GPS coordinates and map data');
-        loadMap();
-        updateLoadingProgress(40, 'Location loaded', 'Map is ready');
-        
-        // Stage 3: Load charts
-        updateLoadingProgress(45, 'Loading weekly data...', 'Fetching 7 days of readings');
-        await loadWeeklyCharts();
-        updateLoadingProgress(70, 'Weekly charts loaded', 'Processed weekly trends');
-        
-        updateLoadingProgress(75, 'Loading daily data...', 'Fetching 24 hours of readings');
-        await loadHourlyCharts();
-        updateLoadingProgress(95, 'Daily charts loaded', 'Processed hourly trends');
-        
-        // Final touches
-        updateLoadingProgress(100, 'Finalizing...', 'Setting up interactive features');
-        
-        // Wait a tiny bit before hiding to show 100%
-        setTimeout(() => {
-            // Hide loader with fade effect
-            const loader = document.getElementById('page-loader');
-            if (loader) {
-                loader.classList.add('fade-out');
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 300);
-            }
-            
-            document.getElementById('last-updated').textContent = new Date().toLocaleString();
-            
-            // Initialize animation toggle
-            initAnimationToggle();
-        }, 200);
-        
-    } catch (error) {
-        console.error('Error loading well data:', error);
-        updateLoadingProgress(0, 'Error loading data', error.message);
-        
-        // Show error state
-        const loader = document.getElementById('page-loader');
-        if (loader) {
-            loader.innerHTML = `
-                <div class="loading-content">
-                    <div class="text-danger mb-3">
-                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
-                    </div>
-                    <h4 class="text-danger">Error Loading Data</h4>
-                    <p class="text-muted">${error.message}</p>
-                    <button class="btn btn-primary mt-3" onclick="location.reload()">
-                        <i class="bi bi-arrow-clockwise"></i> Retry
-                    </button>
-                </div>
-            `;
-        }
-    }
-}
+// ============================================================================
+// EXPORT TO CSV
+// ============================================================================
 
 // Export to CSV function
 function exportToCSV(paramType, timeRange) {

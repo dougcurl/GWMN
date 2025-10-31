@@ -137,7 +137,7 @@ $wells_config = [
         'akgwa_number' => '80046532',
         'full_name' => 'Murray State University Shallow Water Well',
         'property_owner' => 'Murray State University',
-        'property_logo' => 'images/MSUHutsonSchool.jpg',
+        'property_logo' => 'images/MSUHutsonSchool.png',
         'depth_method' => 'Baseline_Elev', //method used to measure depth to water from raw data - will only show the height
         // TD_Height Well Elevation: Transducer Height - Raw Well Depth = Water Level Elevation
         // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
