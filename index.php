@@ -34,6 +34,16 @@ $all_wells = getAllWells();
     </style>
 </head>
 <body>
+    <!-- GA4 updated Jan 3, 2023 - Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GHBYG6LVJQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-GHBYG6LVJQ');
+      gtag('config', 'UA-3514165-12');
+    </script>
     <div class="hero-section">
         <div class="container">
             <div class="row align-items-center">

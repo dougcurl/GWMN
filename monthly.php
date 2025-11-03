@@ -36,6 +36,16 @@ if (!$well_id) {
         <link href="css/styles.css" rel="stylesheet">
     </head>
     <body>
+            <!-- GA4 updated Jan 3, 2023 - Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-GHBYG6LVJQ"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-GHBYG6LVJQ');
+        gtag('config', 'UA-3514165-12');
+        </script>
         <div class="container mt-5">
             <h1 class="mb-4">Select a Well to View Monthly Data</h1>
             <div class="row">

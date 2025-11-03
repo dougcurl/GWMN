@@ -40,6 +40,16 @@ $well_numeric_id = isset($well_config['well_numeric_id']) ? $well_config['well_n
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body>
+    <!-- GA4 updated Jan 3, 2023 - Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GHBYG6LVJQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-GHBYG6LVJQ');
+      gtag('config', 'UA-3514165-12');
+    </script>
     <!-- Page shows immediately with loading indicator -->
     <div id="page-loader" class="page-loading-overlay">
         <div class="loading-content">
