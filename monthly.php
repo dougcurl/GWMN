@@ -227,7 +227,7 @@ if ($access_token) {
                         
                         <div class="text-end mt-3">
                             <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('depth')">
-                                Export Depth Data to CSV
+                                Export Monthly Data to CSV
                             </button>
                         </div>
                     </div>
@@ -274,7 +274,7 @@ if ($access_token) {
                         
                         <div class="text-end mt-3">
                             <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('temperature')">
-                                Export Temperature Data to CSV
+                                Export Monthly Data to CSV
                             </button>
                         </div>
                     </div>
