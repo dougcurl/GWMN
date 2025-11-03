@@ -84,13 +84,10 @@ function loadMonthlyData() {
         url += '&month_start=' + currentMonthStart;
     }
     
-    console.log('Fetching monthly data from:', url);
-    
     // Fetch data
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            console.log('Monthly data received:', data);
             
             if (data.success) {
                 updateMonthlyCharts(data);
@@ -117,16 +114,13 @@ function loadMonthlyData() {
  * Update the charts with new data
  */
 function updateMonthlyCharts(data) {
-    console.log('updateMonthlyCharts called with data:', data);
     
     // Update depth chart
     if (data.depth && data.depth.readings) {
-        console.log('Updating depth chart, readings:', data.depth.readings.length);
         
         // Detect recording interval
         const interval = detectRecordingInterval(data.depth.readings);
         detectedIntervals['depth'] = interval;
-        console.log('Detected depth interval:', interval, 'minutes');
         
         // Store full dataset for export (before downsampling)
         fullDatasets['depth'] = {
@@ -147,12 +141,10 @@ function updateMonthlyCharts(data) {
     
     // Update temperature chart
     if (data.temperature && data.temperature.readings) {
-        console.log('Updating temperature chart, readings:', data.temperature.readings.length);
-        
+
         // Detect recording interval
         const interval = detectRecordingInterval(data.temperature.readings);
         detectedIntervals['temperature'] = interval;
-        console.log('Detected temperature interval:', interval, 'minutes');
         
         // Store full dataset for export (before downsampling)
         fullDatasets['temperature'] = {
@@ -183,7 +175,6 @@ function updateButtonLabel(paramType, intervalMinutes) {
         const button = cardElement.querySelector('button[onclick*="exportToCSV"]');
         if (button) {
             button.textContent = 'Export Monthly Data (' + intervalText + ' intervals) to CSV';
-            console.log('Updated', paramType, 'button label to:', intervalText);
         }
     }
 }
@@ -192,7 +183,6 @@ function updateButtonLabel(paramType, intervalMinutes) {
  * Update statistics display for a parameter
  */
 function updateStatistics(prefix, paramData) {
-    console.log('updateStatistics called with prefix:', prefix, 'data:', paramData);
     
     if (!paramData || !paramData.readings || paramData.readings.length === 0) {
         console.warn('No readings data for', prefix);
@@ -202,16 +192,12 @@ function updateStatistics(prefix, paramData) {
     const values = paramData.readings.map(r => parseFloat(r.value));
     const unit = paramData.unit || '';
     
-    console.log('Calculating stats for', prefix, '- readings:', values.length);
-    
     // Calculate statistics
     const current = values[values.length - 1];
     const min = Math.min(...values);
     const max = Math.max(...values);
     const avg = values.reduce((a, b) => a + b, 0) / values.length;
     const count = values.length;
-    
-    console.log('Stats calculated:', { current, min, max, avg, count });
     
     // Update DOM elements
     const currentEl = document.getElementById(prefix + '-current');
@@ -222,7 +208,6 @@ function updateStatistics(prefix, paramData) {
     
     if (currentEl) {
         currentEl.textContent = current.toFixed(2) + ' ' + unit;
-        console.log('Updated', prefix + '-current');
     } else {
         console.error('Element not found:', prefix + '-current');
     }
@@ -232,7 +217,6 @@ function updateStatistics(prefix, paramData) {
     if (avgEl) avgEl.textContent = avg.toFixed(2) + ' ' + unit;
     if (countEl) countEl.textContent = count;
     
-    console.log('Statistics updated for', prefix);
 }
 
 /**
@@ -453,7 +437,6 @@ function resetMonthRange() {
  * Export data to CSV
  */
 function exportToCSV(paramType) {
-    console.log('exportToCSV called for:', paramType);
     
     // Get full dataset (not the downsampled chart data)
     const dataset = fullDatasets[paramType];
@@ -469,8 +452,6 @@ function exportToCSV(paramType) {
     const unit = dataset.unit;
     const interval = dataset.interval || detectedIntervals[paramType] || 15;
     const intervalText = formatInterval(interval);
-    
-    console.log('Exporting', readings.length, 'readings for', paramType, 'at', intervalText, 'intervals');
     
     // Build CSV content
     let csv = 'Timestamp,Date/Time,' + paramName + ' (' + unit + ')\n';

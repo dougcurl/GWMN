@@ -1,4 +1,134 @@
-// js/well-loader.js
+// js/well-loader.js - Updated with interval detection for weekly and daily data
+
+// ============================================================================
+// INTERVAL DETECTION FUNCTIONS (NEW)
+// ============================================================================
+
+/**
+ * Detect the recording interval from the data
+ * @param {Array} readings - Array of readings with timestamp property
+ * @returns {number} - Detected interval in minutes
+ */
+function detectRecordingInterval(readings) {
+    if (!readings || readings.length < 10) {
+        console.warn('Not enough readings to detect interval, using default');
+        return 15; // Default fallback
+    }
+    
+    // Calculate intervals between first 10 readings
+    const intervals = [];
+    for (let i = 1; i < Math.min(10, readings.length); i++) {
+        const diff = readings[i].timestamp - readings[i - 1].timestamp;
+        intervals.push(diff);
+    }
+    
+    // Get average interval in seconds
+    const avgIntervalSeconds = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    const avgIntervalMinutes = Math.round(avgIntervalSeconds / 60);
+    
+    // Map to standard intervals
+    if (avgIntervalMinutes <= 7) return 5;
+    if (avgIntervalMinutes <= 12) return 10;
+    if (avgIntervalMinutes <= 22) return 15;
+    if (avgIntervalMinutes <= 45) return 30;
+    return 60;
+}
+
+/**
+ * Format interval for display
+ * @param {number} minutes - Interval in minutes
+ * @returns {string} - Formatted string (e.g., "15-min", "1-hour")
+ */
+function formatInterval(minutes) {
+    if (minutes >= 60) {
+        return `${minutes / 60}-hour`;
+    }
+    return `${minutes}-min`;
+}
+
+/**
+ * Calculate expected number of readings
+ * @param {string} timeRange - 'weekly' or 'hourly'
+ * @param {number} interval - Recording interval in minutes
+ * @returns {number} - Expected number of readings
+ */
+function calculateExpectedReadings(timeRange, interval) {
+    const minutesPerDay = 24 * 60;
+    const days = timeRange === 'weekly' ? 7 : 1;
+    const totalMinutes = days * minutesPerDay;
+    return Math.round(totalMinutes / interval);
+}
+
+/**
+ * Add interval message to chart section
+ * @param {string} chartType - 'week' or 'hour'
+ * @param {string} paramType - 'depth' or 'temperature'
+ * @param {number} interval - Detected interval in minutes
+ */
+function addIntervalMessage(chartType, paramType, interval) {
+    const intervalText = formatInterval(interval);
+    const timeRangeName = chartType === 'week' ? 'weekly' : 'daily';
+    const expectedCount = calculateExpectedReadings(timeRangeName, interval);
+    
+    // Find the card containing this chart
+    const chartCanvas = document.getElementById(`${chartType}-chart-${paramType}`);
+    if (!chartCanvas) return;
+    
+    const card = chartCanvas.closest('.card');
+    if (!card) return;
+    
+    // Check if message already exists
+    let messageDiv = card.querySelector('.interval-message');
+    if (!messageDiv) {
+        messageDiv = document.createElement('div');
+        messageDiv.className = 'interval-message';
+        messageDiv.style.cssText = `
+            background-color: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        `;
+        
+        // Insert after the card header
+        const cardBody = card.querySelector('.card-body');
+        if (cardBody) {
+            cardBody.insertBefore(messageDiv, cardBody.firstChild);
+        }
+    }
+    
+    messageDiv.innerHTML = `
+        <strong>ℹ️ Recording Interval:</strong> This well records data every <strong>${intervalText}</strong>. 
+        This ${timeRangeName} view shows approximately <strong>${expectedCount} data points</strong>.
+    `;
+}
+
+/**
+ * Update button label with detected interval
+ * @param {string} chartType - 'week' or 'hour'  
+ * @param {string} paramType - 'Depth' or 'Temperature'
+ * @param {number} interval - Detected interval in minutes
+ */
+function updateExportButtonLabel(chartType, paramType, interval) {
+    const intervalText = formatInterval(interval);
+    const timeRangeName = chartType === 'week' ? 'Weekly' : 'Hourly';
+    
+    // Find the card and button
+    const chartCanvas = document.getElementById(`${chartType}-chart-${paramType.toLowerCase()}`);
+    if (!chartCanvas) return;
+    
+    const card = chartCanvas.closest('.card');
+    if (!card) return;
+    
+    const button = card.querySelector('button[onclick*="exportToCSV"]');
+    if (button) {
+        const originalText = button.textContent;
+        // Update button text to include interval
+        button.textContent = `Export ${timeRangeName} Data (${intervalText} intervals) to CSV`;
+        console.log(`Updated ${chartType} ${paramType} button label to: ${intervalText}`);
+    }
+}
 
 // ============================================================================
 // NO-DATA HANDLING HELPER FUNCTIONS
@@ -340,7 +470,7 @@ function displayMap(location) {
 }
 
 // ============================================================================
-// WEEKLY CHARTS
+// WEEKLY CHARTS (WITH INTERVAL DETECTION)
 // ============================================================================
 
 async function loadWeeklyCharts() {
@@ -391,15 +521,25 @@ function displayWeeklyCharts(weekly) {
     
     content.innerHTML = html;
     
-    // Wait for DOM to update, then create charts
+    // Wait for DOM to update, then create charts with interval detection
     setTimeout(() => {
         if (weekly.depth && weekly.depth.week_readings) {
             const depthReadings = prepareChartData(weekly.depth, 'week_readings');
             if (depthReadings) {
+                // Detect interval
+                const interval = detectRecordingInterval(depthReadings);
+                console.log(`Detected weekly depth interval: ${interval} minutes`);
+                
+                // Update UI with interval info
+                updateExportButtonLabel('week', 'Depth', interval);
+                addIntervalMessage('week', 'depth', interval);
+                
+                // Store and create chart
                 window.chartData = window.chartData || {};
                 window.chartData.weekDepth = {
                     readings: depthReadings,
-                    unit: weekly.depth.unit
+                    unit: weekly.depth.unit,
+                    interval: interval
                 };
                 createDepthChart('week-chart-depth', depthReadings, weekly.depth.unit, true);
             }
@@ -407,10 +547,20 @@ function displayWeeklyCharts(weekly) {
         if (weekly.temperature && weekly.temperature.week_readings) {
             const tempReadings = prepareChartData(weekly.temperature, 'week_readings');
             if (tempReadings) {
+                // Detect interval
+                const interval = detectRecordingInterval(tempReadings);
+                console.log(`Detected weekly temperature interval: ${interval} minutes`);
+                
+                // Update UI with interval info
+                updateExportButtonLabel('week', 'Temperature', interval);
+                addIntervalMessage('week', 'temperature', interval);
+                
+                // Store and create chart
                 window.chartData = window.chartData || {};
                 window.chartData.weekTemp = {
                     readings: tempReadings,
-                    unit: weekly.temperature.unit
+                    unit: weekly.temperature.unit,
+                    interval: interval
                 };
                 createTemperatureChart('week-chart-temperature', tempReadings, weekly.temperature.unit);
             }
@@ -422,7 +572,7 @@ function displayWeeklyCharts(weekly) {
 }
 
 // ============================================================================
-// HOURLY CHARTS
+// HOURLY CHARTS (WITH INTERVAL DETECTION)
 // ============================================================================
 
 async function loadHourlyCharts() {
@@ -474,15 +624,25 @@ function displayHourlyCharts(hourly) {
     // Use insertAdjacentHTML to preserve existing charts
     content.insertAdjacentHTML('beforeend', html);
     
-    // Wait for DOM to update, then create charts
+    // Wait for DOM to update, then create charts with interval detection
     setTimeout(() => {
         if (hourly.depth && hourly.depth.hour_readings) {
             const depthReadings = prepareChartData(hourly.depth, 'hour_readings');
             if (depthReadings) {
+                // Detect interval
+                const interval = detectRecordingInterval(depthReadings);
+                console.log(`Detected hourly depth interval: ${interval} minutes`);
+                
+                // Update UI with interval info
+                updateExportButtonLabel('hour', 'Depth', interval);
+                addIntervalMessage('hour', 'depth', interval);
+                
+                // Store and create chart
                 window.chartData = window.chartData || {};
                 window.chartData.hourDepth = {
                     readings: depthReadings,
-                    unit: hourly.depth.unit
+                    unit: hourly.depth.unit,
+                    interval: interval
                 };
                 createDepthChart('hour-chart-depth', depthReadings, hourly.depth.unit, false);
             }
@@ -490,10 +650,20 @@ function displayHourlyCharts(hourly) {
         if (hourly.temperature && hourly.temperature.hour_readings) {
             const tempReadings = prepareChartData(hourly.temperature, 'hour_readings');
             if (tempReadings) {
+                // Detect interval
+                const interval = detectRecordingInterval(tempReadings);
+                console.log(`Detected hourly temperature interval: ${interval} minutes`);
+                
+                // Update UI with interval info
+                updateExportButtonLabel('hour', 'Temperature', interval);
+                addIntervalMessage('hour', 'temperature', interval);
+                
+                // Store and create chart
                 window.chartData = window.chartData || {};
                 window.chartData.hourTemp = {
                     readings: tempReadings,
-                    unit: hourly.temperature.unit
+                    unit: hourly.temperature.unit,
+                    interval: interval
                 };
                 createTemperatureChart('hour-chart-temperature', tempReadings, hourly.temperature.unit);
             }
@@ -981,15 +1151,22 @@ async function loadWeeklyDataWithDate(weekStart) {
             wellContent.insertBefore(tempDiv.firstChild, hourlyHeaderElement);
         }
         
-        // Wait a bit then create the charts
+        // Wait a bit then create the charts with interval detection
         setTimeout(() => {
             if (data.weekly.depth && data.weekly.depth.week_readings) {
                 const depthReadings = prepareChartData(data.weekly.depth, 'week_readings');
                 if (depthReadings) {
+                    const interval = detectRecordingInterval(depthReadings);
+                    console.log(`Detected weekly depth interval: ${interval} minutes`);
+                    
+                    updateExportButtonLabel('week', 'Depth', interval);
+                    addIntervalMessage('week', 'depth', interval);
+                    
                     window.chartData = window.chartData || {};
                     window.chartData.weekDepth = {
                         readings: depthReadings,
-                        unit: data.weekly.depth.unit
+                        unit: data.weekly.depth.unit,
+                        interval: interval
                     };
                     createDepthChart('week-chart-depth', depthReadings, data.weekly.depth.unit, true);
                 }
@@ -997,10 +1174,17 @@ async function loadWeeklyDataWithDate(weekStart) {
             if (data.weekly.temperature && data.weekly.temperature.week_readings) {
                 const tempReadings = prepareChartData(data.weekly.temperature, 'week_readings');
                 if (tempReadings) {
+                    const interval = detectRecordingInterval(tempReadings);
+                    console.log(`Detected weekly temperature interval: ${interval} minutes`);
+                    
+                    updateExportButtonLabel('week', 'Temperature', interval);
+                    addIntervalMessage('week', 'temperature', interval);
+                    
                     window.chartData = window.chartData || {};
                     window.chartData.weekTemp = {
                         readings: tempReadings,
-                        unit: data.weekly.temperature.unit
+                        unit: data.weekly.temperature.unit,
+                        interval: interval
                     };
                     createTemperatureChart('week-chart-temperature', tempReadings, data.weekly.temperature.unit);
                 }
@@ -1106,15 +1290,22 @@ async function loadHourlyDataWithDate(hourStart) {
         const wellContent = document.getElementById('well-content');
         wellContent.insertAdjacentHTML('beforeend', hourlyHTML);
         
-        // Wait a bit then create the charts
+        // Wait a bit then create the charts with interval detection
         setTimeout(() => {
             if (data.hourly.depth && data.hourly.depth.hour_readings) {
                 const depthReadings = prepareChartData(data.hourly.depth, 'hour_readings');
                 if (depthReadings) {
+                    const interval = detectRecordingInterval(depthReadings);
+                    console.log(`Detected hourly depth interval: ${interval} minutes`);
+                    
+                    updateExportButtonLabel('hour', 'Depth', interval);
+                    addIntervalMessage('hour', 'depth', interval);
+                    
                     window.chartData = window.chartData || {};
                     window.chartData.hourDepth = {
                         readings: depthReadings,
-                        unit: data.hourly.depth.unit
+                        unit: data.hourly.depth.unit,
+                        interval: interval
                     };
                     createDepthChart('hour-chart-depth', depthReadings, data.hourly.depth.unit, false);
                 }
@@ -1122,10 +1313,17 @@ async function loadHourlyDataWithDate(hourStart) {
             if (data.hourly.temperature && data.hourly.temperature.hour_readings) {
                 const tempReadings = prepareChartData(data.hourly.temperature, 'hour_readings');
                 if (tempReadings) {
+                    const interval = detectRecordingInterval(tempReadings);
+                    console.log(`Detected hourly temperature interval: ${interval} minutes`);
+                    
+                    updateExportButtonLabel('hour', 'Temperature', interval);
+                    addIntervalMessage('hour', 'temperature', interval);
+                    
                     window.chartData = window.chartData || {};
                     window.chartData.hourTemp = {
                         readings: tempReadings,
-                        unit: data.hourly.temperature.unit
+                        unit: data.hourly.temperature.unit,
+                        interval: interval
                     };
                     createTemperatureChart('hour-chart-temperature', tempReadings, data.hourly.temperature.unit);
                 }
@@ -1339,7 +1537,7 @@ function buildWeeklyChartsHTML(weekly) {
         html += `
             <div class="card mb-4">
                 <div class="card-header">
-                    <span>Groundwater Level Elevation - Weekly Trend (30 min intervals)</span>
+                    <span>Groundwater Level Elevation - Weekly Trend</span>
                 </div>
                 <div class="card-body">
                     <div class="data-summary mb-3">
@@ -1371,7 +1569,7 @@ function buildWeeklyChartsHTML(weekly) {
                     </div>
                     <div class="text-end mt-3">
                         <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Depth', 'weekly')">
-                            <i class="bi bi-download"></i> Export Weekly Groundwater Level Data (15 min intervals)
+                            <i class="bi bi-download"></i> Export Weekly Data to CSV
                         </button>
                     </div>
                 </div>
@@ -1397,7 +1595,7 @@ function buildWeeklyChartsHTML(weekly) {
         html += `
             <div class="card mb-4">
                 <div class="card-header">
-                    <span>Temperature - Weekly Trend (30 min intervals)</span>
+                    <span>Temperature - Weekly Trend</span>
                 </div>
                 <div class="card-body">
                     <div class="data-summary mb-3">
@@ -1423,7 +1621,7 @@ function buildWeeklyChartsHTML(weekly) {
                     </div>
                     <div class="text-end mt-3">
                         <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Temperature', 'weekly')">
-                            <i class="bi bi-download"></i> Export Weekly Temperature Data (15 min intervals)
+                            <i class="bi bi-download"></i> Export Weekly Data to CSV
                         </button>
                     </div>
                 </div>
@@ -1509,7 +1707,7 @@ function buildHourlyChartsHTML(hourly) {
         html += `
             <div class="card mb-4">
                 <div class="card-header">
-                    <span>Groundwater Level Elevation - Hourly Trend (15 min intervals)</span>
+                    <span>Groundwater Level Elevation - Hourly Trend</span>
                 </div>
                 <div class="card-body">
                     <div class="data-summary mb-3">
@@ -1541,7 +1739,7 @@ function buildHourlyChartsHTML(hourly) {
                     </div>
                     <div class="text-end mt-3">
                         <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Depth', 'hourly')">
-                            <i class="bi bi-download"></i> Export Hourly Groundwater Level Data (15 min intervals)
+                            <i class="bi bi-download"></i> Export Daily Data to CSV
                         </button>
                     </div>
                 </div>
@@ -1566,7 +1764,7 @@ function buildHourlyChartsHTML(hourly) {
         html += `
             <div class="card mb-4">
                 <div class="card-header">
-                    <span>Temperature - Hourly Trend (15 min intervals)</span>
+                    <span>Temperature - Hourly Trend</span>
                 </div>
                 <div class="card-body">
                     <div class="data-summary mb-3">
@@ -1592,7 +1790,7 @@ function buildHourlyChartsHTML(hourly) {
                     </div>
                     <div class="text-end mt-3">
                         <button class="btn btn-sm btn-outline-primary" onclick="exportToCSV('Temperature', 'hourly')">
-                            <i class="bi bi-download"></i> Export Hourly Temperature Data (15 min intervals)
+                            <i class="bi bi-download"></i> Export Daily Data to CSV
                         </button>
                     </div>
                 </div>
@@ -1610,7 +1808,7 @@ function buildHourlyChartsHTML(hourly) {
 }
 
 // ============================================================================
-// EXPORT TO CSV
+// EXPORT TO CSV (UPDATED WITH INTERVAL IN FILENAME)
 // ============================================================================
 
 // Export to CSV function
@@ -1623,6 +1821,22 @@ function exportToCSV(paramType, timeRange) {
         return;
     }
     
+    // Get the interval from chartData if available
+    let interval = 15; // default
+    if (window.chartData) {
+        if (timeRange === 'weekly' && window.chartData.weekDepth && paramType === 'Depth') {
+            interval = window.chartData.weekDepth.interval || 15;
+        } else if (timeRange === 'weekly' && window.chartData.weekTemp && paramType === 'Temperature') {
+            interval = window.chartData.weekTemp.interval || 15;
+        } else if (timeRange === 'hourly' && window.chartData.hourDepth && paramType === 'Depth') {
+            interval = window.chartData.hourDepth.interval || 15;
+        } else if (timeRange === 'hourly' && window.chartData.hourTemp && paramType === 'Temperature') {
+            interval = window.chartData.hourTemp.interval || 15;
+        }
+    }
+    
+    const intervalText = formatInterval(interval);
+    
     let csv = 'Timestamp,Value,Unit\n';
     exportDataItem.readings.forEach(reading => {
         const dateStr = formatTimestampJS(reading.timestamp);
@@ -1633,9 +1847,11 @@ function exportToCSV(paramType, timeRange) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${wellId}_${paramType}_${timeRange}_${Date.now()}.csv`;
+    a.download = `${wellId}_${paramType}_${timeRange}_${intervalText}_${Date.now()}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+    
+    console.log(`Exported ${paramType} ${timeRange} data with ${intervalText} intervals`);
 }
