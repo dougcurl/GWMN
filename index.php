@@ -1,135 +1,12 @@
 <?php
 /**
- * Root Index Page - Lists all available wells with status checks
- * Updated to show real-time status of each well
+ * Root Index Page - Lists all available wells
+ * Updated for instant loading with async status checks
  */
 
 require_once 'wells_config.php';
-require_once 'credentials.php';
-require_once __DIR__ . '/common/api.php';
 
 $all_wells = getAllWells();
-
-/**
- * Check if a well has recent data
- * @param string $well_id - Well identifier
- * @param array $well_config - Well configuration
- * @return array - Status information ['status' => 'active'|'stale'|'offline', 'last_reading' => timestamp, 'message' => string]
- */
-function checkWellStatus($well_id, $well_config) {
-    global $client_id, $client_secret, $token_url, $base_url;
-    
-    // Define time thresholds
-    $current_time = time();
-    $one_day_ago = $current_time - (24 * 60 * 60);
-    $one_week_ago = $current_time - (7 * 24 * 60 * 60);
-    
-    try {
-        // Get OAuth token (with caching)
-        $access_token = getOAuthToken($client_id, $client_secret, $token_url, false);
-        
-        if (!$access_token) {
-            return [
-                'status' => 'unknown',
-                'last_reading' => null,
-                'message' => 'Unable to verify status',
-                'badge_class' => 'bg-secondary',
-                'icon' => '❓'
-            ];
-        }
-        
-        // Get the most recent data (last 2 hours to be safe)
-        $two_hours_ago = $current_time - (2 * 60 * 60);
-        $location_id = $well_config['location_id'];
-        
-        $data = getLocationData($location_id, $access_token, $base_url, $two_hours_ago, $current_time, 1, false);
-        
-        if (!$data || isset($data['error'])) {
-            return [
-                'status' => 'unknown',
-                'last_reading' => null,
-                'message' => 'Unable to verify status',
-                'badge_class' => 'bg-secondary',
-                'icon' => '❓'
-            ];
-        }
-        
-        // Find the most recent reading timestamp
-        $latest_timestamp = null;
-        
-        if (isset($data['parameters']) && is_array($data['parameters'])) {
-            foreach ($data['parameters'] as $param) {
-                if (isset($param['readings']) && !empty($param['readings'])) {
-                    foreach ($param['readings'] as $reading) {
-                        if (isset($reading['timestamp'])) {
-                            $reading_time = $reading['timestamp'];
-                            if ($latest_timestamp === null || $reading_time > $latest_timestamp) {
-                                $latest_timestamp = $reading_time;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Determine status based on latest reading
-        if ($latest_timestamp === null) {
-            // No data found at all
-            return [
-                'status' => 'offline',
-                'last_reading' => null,
-                'message' => 'No recent data',
-                'badge_class' => 'bg-danger',
-                'icon' => '🔴'
-            ];
-        } else if ($latest_timestamp >= $one_day_ago) {
-            // Data within last 24 hours - Active
-            $hours_ago = round(($current_time - $latest_timestamp) / 3600, 1);
-            return [
-                'status' => 'active',
-                'last_reading' => $latest_timestamp,
-                'message' => $hours_ago < 1 ? 'Updated recently' : "Updated {$hours_ago}h ago",
-                'badge_class' => 'bg-success',
-                'icon' => '🟢'
-            ];
-        } else if ($latest_timestamp >= $one_week_ago) {
-            // Data between 1-7 days old - Stale
-            $days_ago = round(($current_time - $latest_timestamp) / 86400, 1);
-            return [
-                'status' => 'stale',
-                'last_reading' => $latest_timestamp,
-                'message' => "Updated {$days_ago} days ago",
-                'badge_class' => 'bg-warning text-dark',
-                'icon' => '🟡'
-            ];
-        } else {
-            // Data older than 7 days - Offline
-            $days_ago = round(($current_time - $latest_timestamp) / 86400, 0);
-            return [
-                'status' => 'offline',
-                'last_reading' => $latest_timestamp,
-                'message' => "Last update {$days_ago} days ago",
-                'badge_class' => 'bg-danger',
-                'icon' => '🔴'
-            ];
-        }
-        
-    } catch (Exception $e) {
-        return [
-            'status' => 'unknown',
-            'last_reading' => null,
-            'message' => 'Unable to verify status',
-            'badge_class' => 'bg-secondary',
-            'icon' => '❓'
-        ];
-    }
-}
-
-// Check status for all wells (with simple caching to avoid repeated API calls)
-$well_statuses = [];
-foreach ($all_wells as $well_id => $well_config) {
-    $well_statuses[$well_id] = checkWellStatus($well_id, $well_config);
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -138,6 +15,7 @@ foreach ($all_wells as $well_id => $well_config) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kentucky Groundwater Observation Network - Real-Time Data Wells</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="css/styles.css" rel="stylesheet">
     <style>
         .well-card {
@@ -154,6 +32,7 @@ foreach ($all_wells as $well_id => $well_config) {
             padding: 60px 0;
             margin-bottom: 40px;
         }
+
         .status-indicator {
             display: inline-flex;
             align-items: center;
@@ -169,6 +48,13 @@ foreach ($all_wells as $well_id => $well_config) {
         .well-card.status-active {
             border-left: 3px solid #28a745;
         }
+        .status-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -182,14 +68,16 @@ foreach ($all_wells as $well_id => $well_config) {
       gtag('config', 'G-GHBYG6LVJQ');
       gtag('config', 'UA-3514165-12');
     </script>
+    
     <div class="hero-section">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
-                    <a href="https://kygs.uky.edu/"><img src="https://kgs.uky.edu/kygeode/img/UK-KGSlogos/UK-KGS-lockup/KGS.png" 
-                         alt="KGS Logo" 
-                         class="img-fluid" 
-                         style="max-height: 250px; filter: brightness(0) invert(1);">
+                    <a href="https://kygs.uky.edu/">
+                        <img src="https://kgs.uky.edu/kygeode/img/UK-KGSlogos/UK-KGS-lockup/KGS.png" 
+                             alt="KGS Logo" 
+                             class="img-fluid" 
+                             style="max-height: 250px; filter: brightness(0) invert(1);">
                     </a>
                 </div>
                 <div class="col-md-11 text-md-start">
@@ -197,7 +85,7 @@ foreach ($all_wells as $well_id => $well_config) {
                     <p class="lead mb-0">
                         Real-time groundwater level and temperature monitoring across Kentucky<br>
                         <a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php"
-                        class="text-white hero-link">
+                           class="text-white hero-link">
                             Learn more about our network →
                         </a>
                     </p>
@@ -232,13 +120,11 @@ foreach ($all_wells as $well_id => $well_config) {
             </div>
         </div>
 
-        <div class="row">
-            <?php foreach ($all_wells as $well_id => $well_config): 
-                $status = $well_statuses[$well_id];
-            ?>
+        <div class="row" id="wells-container">
+            <?php foreach ($all_wells as $well_id => $well_config): ?>
                 <div class="col-md-6 col-lg-4 mb-4">
                     <a href="well.php?id=<?php echo urlencode($well_id); ?>" class="text-decoration-none">
-                        <div class="card well-card h-100 shadow-sm status-<?php echo $status['status']; ?>">
+                        <div class="card well-card h-100 shadow-sm" data-well-id="<?php echo htmlspecialchars($well_id); ?>">
                             <div class="card-body">
                                 <h5 class="card-title text-primary mb-3">
                                     <?php echo htmlspecialchars($well_config['full_name']); ?><br>
@@ -249,21 +135,20 @@ foreach ($all_wells as $well_id => $well_config) {
                                     <?php echo htmlspecialchars($well_config['description']); ?>
                                 </p>
                                 
-                                <div class="mt-3">
+                                <div class="mt-3 status-badges">
                                     <span class="badge bg-info me-2">Real-time Data</span>
-                                    <span class="badge <?php echo $status['badge_class']; ?>">
-                                        <?php echo $status['icon']; ?> <?php echo ucfirst($status['status']); ?>
+                                    <span class="badge bg-secondary status-loading">
+                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Checking...
                                     </span>
                                 </div>
                                 
-                                <?php if ($status['last_reading']): ?>
-                                <div class="mt-2">
+                                <div class="mt-2 status-message">
                                     <small class="text-muted status-indicator">
                                         <i class="bi bi-clock"></i>
-                                        <?php echo $status['message']; ?>
+                                        <span class="status-text">Loading status...</span>
                                     </small>
                                 </div>
-                                <?php endif; ?>
                                 
                                 <div class="mt-3 pt-3 border-top">
                                     <small class="text-muted">
@@ -345,5 +230,69 @@ foreach ($all_wells as $well_id => $well_config) {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load well statuses asynchronously after page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWellStatuses();
+        });
+        
+        function loadWellStatuses() {
+            fetch('api/get_well_statuses.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.statuses) {
+                        updateWellStatuses(data.statuses);
+                    } else {
+                        console.error('Failed to load well statuses');
+                        showStatusError();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching well statuses:', error);
+                    showStatusError();
+                });
+        }
+        
+        function updateWellStatuses(statuses) {
+            for (const wellId in statuses) {
+                const status = statuses[wellId];
+                const card = document.querySelector(`[data-well-id="${wellId}"]`);
+                
+                if (!card) continue;
+                
+                // Update status class
+                card.classList.remove('status-loading');
+                card.classList.add('status-' + status.status);
+                
+                // Update status badge
+                const statusBadge = card.querySelector('.status-badges .status-loading');
+                if (statusBadge) {
+                    statusBadge.className = 'badge ' + status.badge_class;
+                    statusBadge.innerHTML = status.icon + ' ' + capitalizeFirst(status.status);
+                }
+                
+                // Update status message
+                const statusText = card.querySelector('.status-text');
+                if (statusText) {
+                    statusText.textContent = status.message;
+                }
+            }
+        }
+        
+        function showStatusError() {
+            document.querySelectorAll('.status-loading').forEach(badge => {
+                badge.className = 'badge bg-secondary';
+                badge.innerHTML = '❓ Unknown';
+            });
+            
+            document.querySelectorAll('.status-text').forEach(text => {
+                text.textContent = 'Unable to verify status';
+            });
+        }
+        
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
 </body>
 </html>
