@@ -79,12 +79,39 @@ $well_numeric_id = isset($well_config['well_numeric_id']) ? $well_config['well_n
                     </a>
                 </div>
                 <div class="col-md-6 col-sm-9">
+                    <div class="mb-2">
+                        <span class="badge bg-light text-primary border border-primary" style="font-size: 0.75rem; font-weight: 500;">
+                            <i class="bi bi-droplet-fill"></i> KY Groundwater Observation Network (KGON)
+                        </span>
+                    </div>
+                     <!-- Breadcrumb Navigation -->
+                    <nav aria-label="breadcrumb" class="mb-2">
+                        <ol class="breadcrumb mb-0" style="font-size: 0.875rem;">
+                            <li class="breadcrumb-item">
+                                <a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php" target="_blank">
+                                    <i class="bi bi-droplet-fill"></i> KGON
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="index.php">All Wells</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                    <?php echo htmlspecialchars($well_numeric_id); ?>
+                            </li>
+                        </ol>
+                    </nav>
                     <h1 class="mb-1 fs-3"><?php echo htmlspecialchars($page_title); ?><br>(<?php echo htmlspecialchars($well_numeric_id); ?>)</h1>
-                    <h2 class="fs-5 text-muted"><a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php">Kentucky Groundwater Observation Network</a></h2>
                 </div>
                 <div class="col-md-4 col-12 d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                    <div class="d-flex flex-row gap-2">
-                        <a href="index.php" class="btn btn-outline-primary">← All Real-Time KGON Wells</a>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="index.php" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-grid-3x3-gap"></i> All KGON Wells
+                        </a>
+                        <a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php" 
+                        class="btn btn-outline-secondary btn-sm"
+                        target="_blank">
+                            <i class="bi bi-info-circle"></i> About KGON
+                        </a>
                     </div>
                 </div>
             </div>

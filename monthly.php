@@ -119,7 +119,8 @@ if ($access_token) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monthly Well Monitoring Data - <?php echo htmlspecialchars($page_title); ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="css/styles.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -135,18 +136,46 @@ if ($access_token) {
     <div class="container mt-4">
         <div class="header-section">
             <div class="row align-items-center">
-                <div class="col-md-8 col-12 text-center text-md-start">
-                    <h1 class="mb-1 fs-3"><?php echo htmlspecialchars($page_title); ?></h1>
-                    <h2 class="fs-5 text-muted">
-                        <a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php">KGS Groundwater Monitoring Network</a>
-                    </h2>
+                <div class="col-md-2 col-sm-3 text-center text-md-start mb-3 mb-md-0">
+                    <a href="https://kygs.uky.edu">
+                        <img src="https://kgs.uky.edu/kygeode/img/UK-KGSlogos/UK-KGS-lockup/KGS.png" alt="KGS Logo" class="img-fluid" style="max-height: 100px;">
+                    </a>
+                </div>
+                <div class="col-md-6 col-sm-9 text-center text-md-start">
+                    <div class="mb-2">
+                        <span class="badge bg-light text-primary border border-primary" style="font-size: 0.75rem; font-weight: 500;">
+                            <i class="bi bi-droplet-fill"></i> KY Groundwater Observation Network (KGON)
+                        </span>
+                    </div>
+                    <!-- Breadcrumb Navigation -->
+                    <nav aria-label="breadcrumb" class="mb-2">
+                        <ol class="breadcrumb mb-0" style="font-size: 0.875rem;">
+                            <li class="breadcrumb-item">
+                                <a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php" target="_blank">
+                                    <i class="bi bi-droplet-fill"></i> KGON
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="index.php">All Wells</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="well.php?id=<?php echo urlencode($well_id); ?>">
+                                    <?php echo htmlspecialchars($well_numeric_id); ?>
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Monthly Data</li>
+                        </ol>
+                    </nav>
+                    <h1 class="mb-1 fs-3"><?php echo htmlspecialchars($page_title); ?><br>(<?php echo htmlspecialchars($well_numeric_id); ?>)</h1>
                 </div>
                 <div class="col-md-4 col-12 d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
                     <div class="d-flex flex-column gap-2">
-                        <a href="well.php?id=<?php echo urlencode($well_id); ?>" class="btn btn-outline-primary">
-                            ← Back to <?php echo $well_numeric_id ? htmlspecialchars($well_numeric_id) : ''; ?> Well Dashboard
+                        <a href="well.php?id=<?php echo urlencode($well_id); ?>" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-left"> </i>Back to <?php echo htmlspecialchars($well_numeric_id); ?> Details
                         </a>
-                        <a href="index.php" class="btn btn-outline-secondary">View All Wells</a>
+                        <a href="index.php" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-grid-3x3-gap"></i> All KGON Wells
+                        </a>
                     </div>
                 </div>
             </div>

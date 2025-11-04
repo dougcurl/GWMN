@@ -197,8 +197,8 @@ foreach ($all_wells as $well_id => $well_config) {
                     <p class="lead mb-0">
                         Real-time groundwater level and temperature monitoring across Kentucky<br>
                         <a href="https://www.uky.edu/KGS/water/water-groundwater-monitoring.php"
-                           class="text-white">
-                            Learn more about our network
+                        class="text-white hero-link">
+                            Learn more about our network →
                         </a>
                     </p>
                 </div>
@@ -211,7 +211,8 @@ foreach ($all_wells as $well_id => $well_config) {
             <div class="col-12">
                 <h2 class="mb-3">Select a Monitoring Well</h2>
                 <p class="text-muted">
-                    Choose a well below to view real-time data, historical trends, and monitoring statistics.
+                    Choose a well below to view real-time data, historical trends, and monitoring statistics. 
+                    We will be updating this list as more KGON wells are brought online with live data.
                 </p>
             </div>
         </div>
@@ -219,11 +220,15 @@ foreach ($all_wells as $well_id => $well_config) {
         <div class="row mb-4">
             <div style="height: 400px; position: relative;">
                 <iframe 
-                    src="https://kygs.maps.arcgis.com/apps/instant/basic/index.html?appid=a914432c6d6940268c9080859733a235&level=7&center=-85.4576,37.8393"
+                    src="https://kygs.maps.arcgis.com/apps/instant/basic/index.html?appid=a914432c6d6940268c9080859733a235&legend=off&level=7&center=-85.4576,37.8393"
                     style="width: 100%; height: 100%; border: none;"
                     title="KGON Well Locations"
                     allowfullscreen>
                 </iframe>
+                <img 
+                    src="images/kgon-legend.png" 
+                    alt="Map Attribution" 
+                    style="position: absolute; bottom: 10px; left: 30px; width: 200px;">
             </div>
         </div>
 
