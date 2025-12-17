@@ -4,7 +4,7 @@
  * 
  * Define all wells in one place. Add new wells by adding entries to this array.
  * Each well needs:
- * - well_id: Unique identifier for URL routing
+ * - well_id: Unique identifier for URL routing (use HydroVu well ID or similar - https://www.hydrovu.com/public-api/docs/index.html))
  * - location_id: API location ID from HydroVu
  * - common_name: Display name for the well
  * - full_name: Full title for the page
@@ -120,6 +120,36 @@ $wells_config = [
         'reading_interval' => 15, // Data recording interval in minutes
         'aquifer_name' => 'Upper Claiborne Aquifer',
         'description' => 'Hickman shallow groundwater monitoring well (KGON 6) located in Hickman County, KY. Depth of well is 180 ft.',
+        'param_names' => [
+            'depth' => 'Groundwater Level Elevation',
+            'temperature' => 'Temperature'
+        ],
+        'param_units' => [
+            'depth' => 'ft',
+            'temperature' => '°F'
+        ]
+    ],
+    'kgon7' => [
+        'well_id' => 'msu1',
+        'location_id' => ' 5326751413305344', // Replace with actual location ID
+        'common_name' => 'MSU1',
+        'well_numeric_id' => 'KGON-7',
+        'akgwa_number' => '80046531',
+        'full_name' => 'Murray State University Deep Water Well',
+        'property_owner' => 'Murray State University',
+        'property_logo' => 'images/MSUHutsonSchool.png',
+        'depth_method' => 'Baseline_Elev', //method used to measure depth to water from raw data - will only show the height
+        // TD_Height Well Elevation: Transducer Height - Raw Well Depth = Water Level Elevation
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
+        'water_well_elevation' => 576, //ground surface elevation at well location
+        'water_well_depth' => 350, //depth of the well
+        'casing_height' => 3.17, //height of well casing above ground surface
+        //'transducer_height' => 1.17, //height of measuring point above ground surface
+        'water_level_baseline' => 402.08, // NAVD88 elevation of the measuring point - transdcuer height in well subtracted from ground surface elevation
+        'water_level_warning' =>  579.17, // elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => 'McNairy Formation',
+        'description' => 'Murray State University deep groundwater monitoring well (KGON 7) located in Hickman County, KY. Depth of well is 350 ft.',
         'param_names' => [
             'depth' => 'Groundwater Level Elevation',
             'temperature' => 'Temperature'
