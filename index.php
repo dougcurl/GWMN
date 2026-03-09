@@ -241,6 +241,7 @@ $all_wells = getAllWells();
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.statuses) {
+                        console.log('Well statuses loaded:', data);
                         updateWellStatuses(data.statuses);
                     } else {
                         console.error('Failed to load well statuses');

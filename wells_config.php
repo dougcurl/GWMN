@@ -19,7 +19,7 @@ $wells_config = [
         'location_id' => '5515870852612096',
         'common_name' => 'Horse Park',
         'well_numeric_id' => 'KGON-1',
-        'akgwa_number' => '',
+        'akgwa_number' => '00060905',
         'full_name' => 'Kentucky Horse Park Water Well',
         'property_owner' => 'Kentucky Horse Park', //name of property owner
         'property_logo' => 'images/khp-logo.png', //relative path to logo image
@@ -34,6 +34,34 @@ $wells_config = [
         'reading_interval' => 15, // Data recording interval in minutes
         'aquifer_name' => 'Lexington Limestone',
         'description' => 'Horse Park groundwater monitoring well (KGON 1) located at the Kentucky Horse Park in Lexington, KY. Depth of well is 80 ft.',
+        'param_names' => [
+            'depth' => 'Groundwater Level Elevation',
+            'temperature' => 'Temperature'
+        ],
+        'param_units' => [
+            'depth' => 'ft',
+            'temperature' => '°F'
+        ]
+    ],
+        'kgon3' => [
+        'well_id' => 'wko1',
+        'location_id' => '6391112108408832',
+        'common_name' => 'Henderson WKO 1 Well',
+        'well_numeric_id' => 'KGON-3',
+        'akgwa_number' => '80019466',
+        'full_name' => 'Henderson WKO 1 Water Well',
+        'property_owner' => 'Kentucky Geological Survey', //name of property owner
+        'property_logo' => 'images/kgs-logo-final.png', //relative path to logo image
+        'water_well_elevation' => 383.37, //ground surface elevation at well location
+        'water_well_depth' => 47.9, //depth of the well
+        'depth_method' => 'Baseline_Elev',  //method used to measure depth to water from raw data
+        // Baseline_Elev Well Elevation: Water Level Baseline Elevation + Raw Well Depth
+        'casing_height' => 2.19, //height of well casing above ground surface
+        'water_level_baseline' => 350.56, //NAVD88 elevation of the measuring point - transducer height in well subtracted from ground surface elevation
+        'water_level_warning' => 385.56, //top of the well head casing - elevation at top of the well casing
+        'reading_interval' => 15, // Data recording interval in minutes
+        'aquifer_name' => '	Ohio River Alluvium',
+        'description' => 'Henderson WKO 1 groundwater monitoring well (KGON 3) located in Henderson County, KY. Depth of well is 47.9 ft.',
         'param_names' => [
             'depth' => 'Groundwater Level Elevation',
             'temperature' => 'Temperature'

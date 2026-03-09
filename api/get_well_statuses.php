@@ -33,7 +33,7 @@ function checkWellStatus($well_id, $well_config) {
             ];
         }
         
-        $two_hours_ago = $current_time - (2 * 60 * 60);
+        $two_hours_ago = $current_time - (2 * 60 * 60);        
         $location_id = $well_config['location_id'];
         
         $data = getLocationData($location_id, $access_token, $base_url, $two_hours_ago, $current_time, 1, false);

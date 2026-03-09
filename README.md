@@ -79,8 +79,8 @@ Wells are configured in `wells_config.php`. Each well entry requires:
 
 ```php
 'kgon1' => [
-    'well_id' => 'hp',                    // Internal identifier
-    'location_id' => '5515870852612096',  // HydroVu API location ID (NO SPACES!)
+    'well_id' => 'hp',                    // Internal identifier - make this up
+    'location_id' => '5515870852612096',  // HydroVu API location ID (NO SPACES!) - takes a little sleuthing to get. Get this via the API call: https://www.hydrovu.com/public-api/docs/index.html#/Locations/getLocationsListUsingGET - probably need to page through the records by finding the X-ISI-Next-Page in the response header JSON after running and pasting into the "string" text field under X-ISI-Start-Page.
     'common_name' => 'Horse Park',        // Short display name
     'well_numeric_id' => 'KGON-1',       // Public well identifier
     'full_name' => 'Kentucky Horse Park Water Well',
